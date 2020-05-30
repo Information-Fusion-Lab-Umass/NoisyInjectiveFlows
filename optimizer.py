@@ -25,7 +25,7 @@ def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, k
     params = get_params(opt_state)
 
     # Create the autodiff function
-    valgrad = jax.value_and_grad(partial(nll, forward), has_aux=True)
+    valgrad = jit(jax.value_and_grad(partial(nll, forward), has_aux=True))
 
     # Evaluate a gradient
     (val, state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
@@ -37,6 +37,7 @@ def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, k
     g = clip_grads(g, 5.0)
 
     # Update the optimizer state
+
     opt_state = opt_update(i, g, opt_state)
     return val, state, opt_state
 
@@ -63,7 +64,13 @@ class Optimizer():
 
     def initialize(self, model):
         """ Initialize the trainer with a model """
-        opt_init, self.opt_update, self.get_params = optimizers.adam(self.lr)
+
+        def lr_schedule(i):
+            return jnp.where(i < self.warmup,
+                             self.lr*i/self.warmup,
+                             self.lr*(self.lr_decay**(i - self.warmup)))
+
+        opt_init, self.opt_update, self.get_params = optimizers.adam(lr_schedule)
         self.opt_update = jit(self.opt_update)
         self.opt_state = opt_init(model.params)
 

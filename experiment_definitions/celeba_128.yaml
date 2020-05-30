@@ -8,3 +8,4 @@ x_shape:
   - 64
   - 3
 z_dim: 128
+data_init_iterations: 1000

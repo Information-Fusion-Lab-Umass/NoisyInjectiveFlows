@@ -7,3 +7,4 @@ x_shape:
   - 28
   - 28
   - 1
+data_init_iterations: 1000
