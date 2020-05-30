@@ -25,7 +25,7 @@ def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, k
     params = get_params(opt_state)
 
     # Create the autodiff function
-    valgrad = jax.value_and_grad(partial(nll, forward), has_aux=True)
+    valgrad = jit(jax.value_and_grad(partial(nll, forward), has_aux=True))
 
     # Evaluate a gradient
     (val, state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
