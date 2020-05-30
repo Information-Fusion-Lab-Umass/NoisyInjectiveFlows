@@ -1,0 +1,10 @@
+model: 'SimpleNIF'
+dataset_name: 'CIFAR10'
+n_filters: 256
+n_blocks: 16
+n_multiscale: 4
+x_shape:
+  - 32
+  - 32
+  - 3
+z_dim: 512

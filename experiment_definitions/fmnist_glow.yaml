@@ -1,0 +1,9 @@
+model: 'GLOW'
+dataset_name: 'FashionMNIST'
+n_filters: 256
+n_blocks: 16
+n_multiscale: 2
+x_shape:
+  - 28
+  - 28
+  - 1

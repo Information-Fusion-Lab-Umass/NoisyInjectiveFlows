@@ -9,6 +9,7 @@ import pandas as pd
 import pathlib
 import pickle
 from datasets import celeb_dataset_loader, cifar10_data_loader, mnist_data_loader
+from functools import partial
 
 class Experiment():
     """
