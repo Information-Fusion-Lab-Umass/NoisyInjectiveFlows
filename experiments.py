@@ -211,7 +211,7 @@ class Experiment():
         model.initialize_model(self.model_init_key)
 
         # Do data dependent initialization
-        model.data_dependent_init(data_dependent_init_key, self.data_loader, n_seed_examples=1000, batch_size=64)
+        model.data_dependent_init(data_dependent_init_key, self.data_loader, batch_size=64)
 
         # Initialize the optimizer
         optimizer = Optimizer.initialize_from_meta_data(optimizer_meta_data)
