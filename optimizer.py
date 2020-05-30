@@ -10,8 +10,11 @@ import jax.numpy as jnp
 import util
 import numpy as np
 clip_grads = jit(optimizers.clip_grads)
+fast_split = jit(random.split, static_argnums=(1,)) # Doesn't seem to give a speedup...
 
 ################################################################################################################
+
+MAX_ACCEPTABLE_LOSS = 1e10
 
 @partial(jit, static_argnums=(0,))
 def nll(forward, params, state, x, **kwargs):
@@ -28,18 +31,30 @@ def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, k
     valgrad = jit(jax.value_and_grad(partial(nll, forward), has_aux=True))
 
     # Evaluate a gradient
-    (val, state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
+    (val, updated_state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
 
-    # Sum the gradient over all of the gpu shards
-    g = jax.lax.psum(grads, 'batch')
+    # Early during training we can get spikes in training that make everything fail.
+    @jit
+    def perform_grad_update(dummy):
 
-    # Gradient clipping
-    g = clip_grads(g, 5.0)
+        # Sum the gradient over all of the gpu shards
+        g = jax.lax.psum(grads, 'batch')
 
-    # Update the optimizer state
+        # Gradient clipping
+        g = clip_grads(g, 5.0)
 
-    opt_state = opt_update(i, g, opt_state)
-    return val, state, opt_state
+        # Update the optimizer state
+        return state, opt_update(i, g, opt_state)
+
+    @jit
+    def do_nothing(dummy):
+        return state, opt_state
+
+    # Only update the gradient if we know its not garbage
+    predicate = (val > MAX_ACCEPTABLE_LOSS)&(i > 100)
+    updated_state, opt_state = jax.lax.cond(predicate, (), do_nothing, (), perform_grad_update)
+
+    return val, updated_state, opt_state
 
 ################################################################################################################
 
@@ -72,6 +87,7 @@ class Optimizer():
 
         opt_init, self.opt_update, self.get_params = optimizers.adam(lr_schedule)
         self.opt_update = jit(self.opt_update)
+        self.get_params = jit(self.get_params)
         self.opt_state = opt_init(model.params)
 
         self.update_fun = partial(spmd_update, model.forward, self.opt_update, self.get_params)
@@ -107,13 +123,14 @@ class Optimizer():
     #####################################################################
 
     def train_step(self, key, i, replicated_model_state, replicated_opt_state, data_loader):
-        data_key, gpu_key = random.split(key, 2)
+        # data_key, gpu_key = random.split(key, 2)
+        data_key, gpu_key = fast_split(key, 2)
 
-        # Take the next batch of data
+        # Take the next batch of data.  This has a huge performance impact!!!
         x_batch = data_loader((self.n_gpus, self.batch_size), key=key, split='train')
 
         # We need to replicate things for each gpu
-        train_keys = jnp.array(random.split(gpu_key, self.n_gpus))
+        train_keys = jnp.array(fast_split(gpu_key, self.n_gpus))
         replicated_i = jnp.ones(self.n_gpus)*i
 
         replicated_val, replicated_model_state, replicated_opt_state = self.update_fun(replicated_i,
@@ -136,8 +153,6 @@ class Optimizer():
 
         bits_per_dim_scale = jnp.prod(model.x_shape)*jnp.log(2)
 
-        print('start_it', start_it)
-
         pbar = tqdm(np.arange(start_it, self.max_iterations), initial=start_it)
         for i in pbar:
 
@@ -154,7 +169,7 @@ class Optimizer():
                 losses = save_hook(i, key, losses)
 
             # Make sure we do this after the checkpoint
-            key, _ = random.split(key, 2)
+            key, _ = fast_split(key, 2)
 
             # Take a gradient step
             val, replicated_model_state, replicated_opt_state = self.train_step(key, i, replicated_model_state, replicated_opt_state, data_loader)
