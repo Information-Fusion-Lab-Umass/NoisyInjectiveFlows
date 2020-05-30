@@ -22,7 +22,7 @@ class Model():
         self.names, self.z_shape, self.params, self.state = None, None, None, None
         self.n_params = None
 
-    def get_architecture(self):
+    def get_architecture(self, init_key=None):
         assert 0, 'unimplemented'
 
     def get_prior(self):
@@ -30,8 +30,8 @@ class Model():
 
     #####################################################################
 
-    def build_model(self, quantize_level_bits):
-        architecture = self.get_architecture()
+    def build_model(self, quantize_level_bits, init_key=None):
+        architecture = self.get_architecture(init_key=init_key)
         prior = self.get_prior()
 
         # Use uniform dequantization to build our model
@@ -84,7 +84,7 @@ class GLOW(Model):
 
     #####################################################################
 
-    def get_architecture(self):
+    def get_architecture(self, init_key=None):
         """ Build the architecture from GLOW https://arxiv.org/pdf/1807.03039.pdf """
 
         def GLOWNet(out_shape, n_filters):
@@ -123,6 +123,10 @@ class GLOW(Model):
         flow = nf.Identity()
         for i in range(self.n_multiscale):
             flow = multi_scale(flow)
+
+        if(init_key is not None):
+            # Add the ability to ensure that things arae initialized together
+            flow = nf.key_wrap(flow, init_key)
 
         return flow
 

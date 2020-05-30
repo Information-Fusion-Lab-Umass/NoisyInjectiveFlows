@@ -67,7 +67,6 @@ if(__name__ == '__main__'):
 
         with open(model_def_path) as f:
             model_meta_data = yaml.safe_load(f)
-        # model_meta_data['x_shape'] = x_shape
 
         with open(opt_def_path) as f:
             opt_meta_data = yaml.safe_load(f)

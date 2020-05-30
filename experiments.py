@@ -204,8 +204,9 @@ class Experiment():
         x_shape = self.get_data_loader(model.dataset_name)
         assert x_shape == model.x_shape, 'The dataset has the wrong dimensions!  Has %s, expected %s'%(str(x_shape), str(model.x_shape))
 
-        # Initalize the model
-        model.build_model(self.quantize_level_bits)
+        # Initalize the model.  Use a key to ensure things are initialized correctly
+        init_key = random.PRNGKey(0)
+        model.build_model(self.quantize_level_bits, init_key=init_key)
         model.initialize_model(self.model_init_key)
 
         # Do data dependent initialization
@@ -234,8 +235,9 @@ class Experiment():
         x_shape = self.get_data_loader(model.dataset_name)
         assert x_shape == model.x_shape, 'The dataset has the wrong dimensions!  Has %s, expected %s'%(str(x_shape), str(model.x_shape))
 
-        # Initalize the model and optimizer
-        model.build_model(self.quantize_level_bits)
+        # Initalize the model and optimizer.  Use a key to ensure things are initialized correctly
+        init_key = random.PRNGKey(0)
+        model.build_model(self.quantize_level_bits, init_key=init_key)
         model.initialize_model(self.model_init_key)
         optimizer.initialize(model)
 

@@ -20,6 +20,19 @@ from tqdm import tqdm
 
 ################################################################################################################
 
+def key_wrap(flow, key):
+    # language=rst
+    """
+    Add the ability to specify a key to initialize
+    """
+    _init_fun, forward, inverse = flow
+
+    def init_fun(unused_key, input_shape, condition_shape):
+        name, output_shape, params, state = _init_fun(key, input_shape, condition_shape)
+        return name, output_shape, params, state
+
+    return init_fun, forward, inverse
+
 def named_wrap(flow, name='unnamed'):
     _init_fun, _forward, _inverse = flow
 
@@ -36,6 +49,8 @@ def named_wrap(flow, name='unnamed'):
         return log_px, x, updated_state
 
     return init_fun, forward, inverse
+
+################################################################################################################
 
 def sequential_flow(*layers):
     # language=rst
