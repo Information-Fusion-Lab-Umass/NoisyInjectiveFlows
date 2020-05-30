@@ -1,5 +1,4 @@
 import argparse
-from datasets import celeb_dataset_loader, cifar10_data_loader
 from jax import random
 from experiments import Experiment
 import os
@@ -14,12 +13,6 @@ if(__name__ == '__main__'):
                         type=str,
                         help='Name of model.  Is used to load existing checkpoints.',
                         default='GLOW')
-
-    parser.add_argument('--dataset',
-                        action='store',
-                        type=str,
-                        help='Dataset to load.',
-                        default='CIFAR10')
 
     parser.add_argument('--quantize',
                         action='store',
@@ -37,7 +30,7 @@ if(__name__ == '__main__'):
                         action='store',
                         type=int,
                         help='Sets the number of iterations between each test',
-                        default=500)
+                        default=5000)
 
     parser.add_argument('--experiment_root',
                         action='store',
@@ -58,19 +51,8 @@ if(__name__ == '__main__'):
                         default='adam')
     args = parser.parse_args()
 
-    # Load the dataset
-    data_key = random.PRNGKey(0)
-    if(args.dataset == 'CelebA'):
-        data_loader, x_shape = celeb_dataset_loader(data_key, quantize_level_bits=args.quantize, split=(0.6, 0.2, 0.2))
-    elif(args.dataset == 'CIFAR10'):
-        data_loader, x_shape = cifar10_data_loader(data_key, quantize_level_bits=args.quantize, split=(0.6, 0.2, 0.2))
-    else:
-        assert 0, 'Invalid dataset'
-
     # Load the experiment object
     exp = Experiment(args.name,
-                     x_shape,
-                     data_loader,
                      args.quantize,
                      args.checkpoint_interval,
                      start_it=args.start_it,
@@ -85,7 +67,7 @@ if(__name__ == '__main__'):
 
         with open(model_def_path) as f:
             model_meta_data = yaml.safe_load(f)
-        model_meta_data['x_shape'] = x_shape
+        # model_meta_data['x_shape'] = x_shape
 
         with open(opt_def_path) as f:
             opt_meta_data = yaml.safe_load(f)

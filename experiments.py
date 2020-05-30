@@ -8,6 +8,7 @@ from jax import random
 import pandas as pd
 import pathlib
 import pickle
+from datasets import celeb_dataset_loader, cifar10_data_loader, mnist_data_loader
 
 class Experiment():
     """
@@ -15,16 +16,13 @@ class Experiment():
     """
     def __init__(self,
                  experiment_name,
-                 x_shape,
-                 data_loader,
                  quantize_level_bits,
                  checkpoint_iters,
                  start_it=None,
                  experiment_root='Experiments'):
         self.experiment_name     = experiment_name
         self.experiment_root     = os.path.join(experiment_root, experiment_name)
-        self.data_loader         = data_loader
-        self.x_shape             = x_shape
+        self.data_loader         = None
         self.quantize_level_bits = quantize_level_bits
         self.checkpoint_iters    = checkpoint_iters
 
@@ -169,6 +167,26 @@ class Experiment():
 
     #####################################################################
 
+    def get_data_loader(self, dataset_name):
+
+        data_key = random.PRNGKey(0)
+        split = (0.6, 0.2, 0.2)
+
+        if(dataset_name == 'CelebA'):
+            data_fun = celeb_dataset_loader
+        elif(dataset_name == 'CIFAR10'):
+            data_fun = cifar10_data_loader
+        elif(dataset_name == 'FashionMNIST'):
+            data_fun = partial(mnist_data_loader, kind='fashion')
+        else:
+            assert 0, 'Invalid dataset'
+
+        data_loader, x_shape = data_fun(data_key, quantize_level_bits=self.quantize_level_bits, split=split)
+        self.data_loader = data_loader
+        return x_shape
+
+    #####################################################################
+
     def create_experiment_from_meta_data(self, key, model_meta_data, optimizer_meta_data):
         """ Create an experiment from meta data """
 
@@ -181,6 +199,10 @@ class Experiment():
         model_name = model_meta_data['model']
         ModelClass = MODEL_LIST[model_name]
         model = ModelClass.initialize_from_meta_data(model_meta_data)
+
+        # Get the data loader
+        x_shape = self.get_data_loader(model.dataset_name)
+        assert x_shape == model.x_shape, 'The dataset has the wrong dimensions!  Has %s, expected %s'%(str(x_shape), str(model.x_shape))
 
         # Initalize the model
         model.build_model(self.quantize_level_bits)
@@ -207,6 +229,10 @@ class Experiment():
         # Load the model and optimizer
         model = self.load_model_instance_from_meta_data()
         optimizer = self.load_optimizer_instance_from_meta_data()
+
+        # Get the data loader
+        x_shape = self.get_data_loader(model.dataset_name)
+        assert x_shape == model.x_shape, 'The dataset has the wrong dimensions!  Has %s, expected %s'%(str(x_shape), str(model.x_shape))
 
         # Initalize the model and optimizer
         model.build_model(self.quantize_level_bits)
@@ -274,7 +300,6 @@ class Experiment():
 
     def train(self):
         self.optimizer.train(self.opt_key,
-                             self.x_shape,
                              self.data_loader,
                              self.model,
                              self.current_iteration,

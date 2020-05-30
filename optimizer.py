@@ -119,7 +119,7 @@ class Optimizer():
 
     #####################################################################
 
-    def train(self, key, x_shape, data_loader, model, start_it, checkpoint_iters=5000, save_hook=None):
+    def train(self, key, data_loader, model, start_it, checkpoint_iters=5000, save_hook=None):
 
         losses = []
 
@@ -127,7 +127,7 @@ class Optimizer():
         replicated_model_state = util.replicate((self.n_gpus,), model.state)
         replicated_opt_state   = util.replicate((self.n_gpus,), self.opt_state)
 
-        bits_per_dim_scale = jnp.prod(x_shape)*jnp.log(2)
+        bits_per_dim_scale = jnp.prod(model.x_shape)*jnp.log(2)
 
         print('start_it', start_it)
 

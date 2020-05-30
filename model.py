@@ -14,11 +14,13 @@ from functools import partial
 
 class Model():
 
-    def __init__(self, x_shape):
-        self.x_shape   = x_shape
+    def __init__(self, dataset_name, x_shape):
+        self.x_shape      = x_shape
+        self.dataset_name = dataset_name
+
         self.init_fun, self.forward, self.inverse = None, None, None
         self.names, self.z_shape, self.params, self.state = None, None, None, None
-        self.n_params  = None
+        self.n_params = None
 
     def get_architecture(self):
         assert 0, 'unimplemented'
@@ -47,13 +49,15 @@ class Model():
         assert self.init_fun is not None, 'Need to call build_model'
         self.names, self.z_shape, self.params, self.state = self.init_fun(key, self.x_shape, ())
         self.n_params = jax.flatten_util.ravel_pytree(self.params)[0].shape[0]
+        print('Total number of parameters:', self.n_params)
 
     #####################################################################
 
     def gen_meta_data(self):
         """ Create a dictionary that will tell us exactly how to create this model """
-        meta = {'x_shape': list(self.x_shape),
-                'model'  : None}
+        meta = {'x_shape'     : list(self.x_shape),
+                'dataset_name': self.dataset_name,
+                'model'       : None}
         return meta
 
     @classmethod
@@ -72,8 +76,8 @@ class Model():
 
 class GLOW(Model):
 
-    def __init__(self, x_shape, n_filters=256, n_blocks=16, n_multiscale=5):
-        super().__init__(x_shape)
+    def __init__(self, dataset_name, x_shape, n_filters=256, n_blocks=16, n_multiscale=5):
+        super().__init__(dataset_name, x_shape)
         self.n_filters    = n_filters
         self.n_blocks     = n_blocks
         self.n_multiscale = n_multiscale
@@ -141,12 +145,13 @@ class GLOW(Model):
     @classmethod
     def initialize_from_meta_data(cls, meta):
         """ Using a meta data, construct an instance of this model """
+        dataset_name = meta['dataset_name']
         x_shape      = tuple(meta['x_shape'])
         n_filters    = meta['n_filters']
         n_blocks     = meta['n_blocks']
         n_multiscale = meta['n_multiscale']
 
-        return GLOW(x_shape, n_filters, n_blocks, n_multiscale)
+        return GLOW(dataset_name, x_shape, n_filters, n_blocks, n_multiscale)
 
     #####################################################################
 
@@ -169,8 +174,8 @@ class GLOW(Model):
 
 class SimpleNIF(GLOW):
 
-    def __init__(self, x_shape, z_dim, n_filters=256, n_blocks=16, n_multiscale=5):
-        super().__init__(x_shape, n_filters, n_blocks, n_multiscale)
+    def __init__(self, dataset_name, x_shape, z_dim, n_filters=256, n_blocks=16, n_multiscale=5):
+        super().__init__(dataset_name, x_shape, n_filters, n_blocks, n_multiscale)
         self.z_dim = z_dim
 
     def get_prior(self):
@@ -189,13 +194,14 @@ class SimpleNIF(GLOW):
     @classmethod
     def initialize_from_meta_data(cls, meta):
         """ Using a meta data, construct an instance of this model """
-        x_shape      = meta['x_shape']
+        dataset_name = meta['dataset_name']
+        x_shape      = tuple(meta['x_shape'])
         n_filters    = meta['n_filters']
         n_blocks     = meta['n_blocks']
         n_multiscale = meta['n_multiscale']
         z_dim        = meta['z_dim']
 
-        return SimpleNIF(x_shape, z_dim, n_filters, n_blocks, n_multiscale)
+        return SimpleNIF(dataset_name, x_shape, z_dim, n_filters, n_blocks, n_multiscale)
 
 ######################################################################################################################################################
 

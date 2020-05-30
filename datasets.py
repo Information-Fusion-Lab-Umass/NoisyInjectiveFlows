@@ -78,7 +78,7 @@ def download_mnist(data_folder, base_url):
 
     return train_images, train_labels, test_images, test_labels
 
-def get_mnist_data(quantize_level_bits=2, data_folder='/tmp/mnist/', kind='digits'):
+def get_mnist_data(quantize_level_bits=2, data_folder='data/mnist/', kind='digits'):
     # language=rst
     """
     Retrive an mnist dataset.  Either get the digits or fashion datasets.
@@ -111,6 +111,59 @@ def get_mnist_data(quantize_level_bits=2, data_folder='/tmp/mnist/', kind='digit
     test_images = test_images//factor
 
     return train_images, train_labels, test_images, test_labels
+
+def mnist_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_folder='data/mnist/', kind='fashion'):
+    # language=rst
+    """
+    Load the mnist dataset.
+    :param data_folder: Where to download the data to
+    """
+    train_images, train_labels, test_images, test_labels = get_mnist_data(quantize_level_bits=quantize_level_bits, data_folder=data_folder, kind=kind)
+    x_shape = train_images.shape[1:]
+
+    # Turn the (train, test) split into a (train, test, validation) split
+    images, labels = np.concatenate([train_images, test_images]), np.concatenate([train_labels, test_labels])
+    images = images.astype(np.int32)
+    total_examples = images.shape[0]
+
+    assert sum(split) == 1.0
+    n_train      = int(total_examples*split[0])
+    remaining    = total_examples - n_train
+    n_test       = int(total_examples*split[1])
+    n_validation = total_examples - n_train - n_test
+
+    train_images, train_labels = images[:n_train], labels[:n_train]
+    test_images, test_labels = images[n_train:n_train + n_test], labels[n_train:n_train + n_test]
+    validation_images, validation_labels = images[n_train + n_test:], labels[n_train + n_test:]
+
+    # def data_loader(batch_shape, key=None, start=None, train=True, labels=False):
+    def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True):
+        assert (key is None)^(start is None)
+
+        if(split == 'train'):
+            images, labels = train_images, train_labels
+        elif(split == 'test'):
+            images, labels = test_images, test_labels
+        elif(split == 'validation'):
+            images, labels = validation_images, validation_labels
+        else:
+            assert 0, 'Invalid split name.  Choose from \'train\', \'test\' or \'validation\''
+
+        # See if we want to take a random batch or not
+        if(key is not None):
+            batch_idx = random.randint(key, batch_shape, minval=0, maxval=images.shape[0])
+        else:
+            n_files = batch_shape[-1]
+            batch_idx = start + jnp.arange(n_files)
+            batch_idx = np.broadcast_to(batch_idx, batch_shape)
+
+        image_batch, label_batch = images[batch_idx,...], labels[batch_idx,...]
+        if(onehot == False):
+            label_batch = np.nonzero(label_batch)[-1].reshape(batch_shape)
+
+        return (image_batch, label_batch) if return_labels else image_batch
+
+    return data_loader, x_shape
 
 ############################################################################################################################################################
 
