@@ -121,6 +121,8 @@ def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=
     n_cols = n_samples
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
@@ -152,6 +154,8 @@ def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_s
     n_cols = n_samples
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
@@ -193,6 +197,8 @@ def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=16):
     n_cols = n_samples
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
@@ -251,6 +257,8 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
     n_cols = n_samples
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
@@ -309,6 +317,8 @@ def samples_vary_s(data_key, key, experiments, n_samples, save_path, n_samples_p
     n_cols = n_samples
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
@@ -359,6 +369,8 @@ def interpolate_pairs(data_key, key, experiment, n_pairs, n_interp, save_path):
     n_rows = len(index_pairs)
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     for i, (idx1, idx2) in enumerate(index_pairs):

@@ -53,7 +53,7 @@ def AffineGaussianPriorFullCov(out_dim, A_init=glorot_normal(), Sigma_chol_init=
         Sigma_chol = index_update(Sigma_chol, jnp.diag_indices(Sigma_chol.shape[0]), jnp.exp(diag))
 
         # In case we want to change the noise model
-        sigma = kwargs.pop('sigma', 1.0)
+        sigma = kwargs.get('sigma', 1.0)
         Sigma_chol = sigma*Sigma_chol
 
         Sigma_inv_A = jax.scipy.linalg.cho_solve((Sigma_chol, True), A)
@@ -96,7 +96,7 @@ def AffineGaussianPriorFullCov(out_dim, A_init=glorot_normal(), Sigma_chol_init=
 
         key = kwargs.pop('key', None)
         if(key is not None):
-            sigma = kwargs.pop('sigma', 1.0)
+            sigma = kwargs.get('sigma', 1.0)
             noise = random.normal(key, x.shape)*sigma
             x += jnp.dot(noise, Sigma_chol.T)
         else:
@@ -129,8 +129,8 @@ def AffineGaussianPriorDiagCov(out_dim, A_init=glorot_normal(), name='unnamed'):
 
         # In case we want to change the noise model.  This equation corresponds
         # to how we are changing noise in the inverse section
-        sigma = kwargs.pop('sigma', 1.0)
-        log_diag_cov = log_diag_cov + 2*jnp.log(sigma)
+        # sigma = kwargs.get('sigma', 1.0)
+        # log_diag_cov = log_diag_cov + 2*jnp.log(sigma)
         diag_cov = jnp.exp(log_diag_cov)
 
         x_dim, z_dim = A.shape
@@ -169,7 +169,7 @@ def AffineGaussianPriorDiagCov(out_dim, A_init=glorot_normal(), name='unnamed'):
 
         key = kwargs.pop('key', None)
         if(key is not None):
-            sigma = kwargs.pop('sigma', 1.0)
+            sigma = kwargs.get('sigma', 1.0)
             noise = random.normal(key, x.shape)*jnp.exp(0.5*log_diag_cov)*sigma # CHANGE THIS MANUALLY FOR THE MOMENT
             x += noise
 
@@ -276,7 +276,7 @@ def TallAffineDiagCov(flow, out_dim, n_training_importance_samples=32, A_init=gl
         _, flow_state = state
 
         # Get the terms to compute and sample from the posterior
-        sigma = kwargs.pop('sigma', 1.0)
+        sigma = kwargs.get('sigma', 1.0)
         z, log_hx, sigma_ATA_chol = tall_affine_posterior_diag_cov(x, b, A, log_diag_cov, sigma)
 
         # Importance sample from N(z|\mu(x),\Sigma(x)) and compile the results
@@ -299,7 +299,7 @@ def TallAffineDiagCov(flow, out_dim, n_training_importance_samples=32, A_init=gl
         key = kwargs.pop('key', None)
         if(key is not None):
 
-            sigma = kwargs.pop('sigma', 1.0)
+            sigma = kwargs.get('sigma', 1.0)
             noise = random.normal(key, x.shape)*sigma
 
             x += noise*jnp.exp(0.5*log_diag_cov)
@@ -403,7 +403,7 @@ def CoupledDimChange(transform_fun,
 
         # Determine if we are batching or not
         is_batched = x.ndim == 2
-        sigma = kwargs.pop('sigma', 1.0)
+        sigma = kwargs.get('sigma', 1.0)
         posterior_fun = vmap(tall_affine_posterior_diag_cov, in_axes=(0, 0, None, 0, None)) if is_batched else tall_affine_posterior_diag_cov
 
         # Split x
@@ -556,7 +556,7 @@ def ConditionedTallAffineDiagCov(transform_fun,
             assert b.shape[0] == 1
 
         # Get the terms to compute and sample from the posterior
-        sigma = kwargs.pop('sigma', 1.0)
+        sigma = kwargs.get('sigma', 1.0)
         z, log_hx, sigma_ATA_chol = tall_affine_posterior_diag_cov(x, b, A, log_diag_cov, sigma)
 
         # Importance sample from N(z|\mu(x),\Sigma(x)) and compile the results
