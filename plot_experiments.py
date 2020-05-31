@@ -33,6 +33,14 @@ if(__name__ == '__main__'):
                         help='The root directory of the results folder',
                         default='Results')
 
+    parser.add_argument('--compare_samples',
+                        action='store_true',
+                        help='')
+
+    parser.add_argument('--reconstructions',
+                        action='store_true',
+                        help='')
+
     parser.add_argument('--vary_t',
                         action='store_true',
                         help='')
