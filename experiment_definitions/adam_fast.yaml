@@ -1,0 +1,5 @@
+batch_size: 64
+n_gpus: 1
+lr: 0.001
+warmup: 1000
+lr_decay: 1.0
