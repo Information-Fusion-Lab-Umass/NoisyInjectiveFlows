@@ -22,6 +22,40 @@ def nll(forward, params, state, x, **kwargs):
     log_px, z, updated_state = forward(params, state, jnp.zeros(x.shape[0]), x, (), **kwargs)
     return -jnp.mean(log_px), updated_state
 
+# @partial(pmap, static_broadcasted_argnums=(0, 1, 2), axis_name='batch')
+# def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, key):
+#     """ Can distribute large batch sizes across a gpu """
+#     params = get_params(opt_state)
+
+#     # Create the autodiff function
+#     valgrad = jit(jax.value_and_grad(partial(nll, forward), has_aux=True))
+
+#     # Evaluate a gradient
+#     (val, updated_state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
+
+#     # Early during training we can get spikes in training that make everything fail.
+#     @jit
+#     def perform_grad_update(dummy):
+
+#         # Sum the gradient over all of the gpu shards
+#         g = jax.lax.psum(grads, 'batch')
+
+#         # Gradient clipping
+#         g = clip_grads(g, 5.0)
+
+#         # Update the optimizer state
+#         return state, opt_update(i, g, opt_state)
+
+#     @jit
+#     def do_nothing(dummy):
+#         return state, opt_state
+
+#     # Only update the gradient if we know its not garbage
+#     predicate = val > MAX_ACCEPTABLE_LOSS
+#     updated_state, opt_state = jax.lax.cond(predicate, (), do_nothing, (), perform_grad_update)
+
+#     return val, updated_state, opt_state
+
 @partial(pmap, static_broadcasted_argnums=(0, 1, 2), axis_name='batch')
 def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, key):
     """ Can distribute large batch sizes across a gpu """
@@ -31,30 +65,18 @@ def spmd_update(forward, opt_update, get_params, i, opt_state, state, x_batch, k
     valgrad = jit(jax.value_and_grad(partial(nll, forward), has_aux=True))
 
     # Evaluate a gradient
-    (val, updated_state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
+    (val, state), grads = valgrad(params, state, x_batch, key=key, test=util.TRAIN)
 
-    # Early during training we can get spikes in training that make everything fail.
-    @jit
-    def perform_grad_update(dummy):
+    # Sum the gradient over all of the gpu shards
+    g = jax.lax.psum(grads, 'batch')
 
-        # Sum the gradient over all of the gpu shards
-        g = jax.lax.psum(grads, 'batch')
+    # Gradient clipping
+    g = clip_grads(g, 5.0)
 
-        # Gradient clipping
-        g = clip_grads(g, 5.0)
+    # Update the optimizer state
+    opt_state = opt_update(i, g, opt_state)
 
-        # Update the optimizer state
-        return state, opt_update(i, g, opt_state)
-
-    @jit
-    def do_nothing(dummy):
-        return state, opt_state
-
-    # Only update the gradient if we know its not garbage
-    predicate = val > MAX_ACCEPTABLE_LOSS
-    updated_state, opt_state = jax.lax.cond(predicate, (), do_nothing, (), perform_grad_update)
-
-    return val, updated_state, opt_state
+    return val, state, opt_state
 
 ################################################################################################################
 

@@ -371,7 +371,7 @@ class Experiment():
             else:
                 batch_size = x.shape[0]
 
-            log_px, z, _ = jitted_forward(jnp.zeros(batch_size), x, (), key=key, **kwargs)
+            log_px, z, _ = jitted_forward(jnp.zeros(batch_size), x, (), sigma=1.0, key=key, **kwargs)
             return log_px, z
 
         return encoder
