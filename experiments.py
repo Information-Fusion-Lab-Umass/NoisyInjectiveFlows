@@ -4,12 +4,14 @@ import numpy as np
 import yaml
 from model import MODEL_LIST
 from optimizer import Optimizer
-from jax import random
+from jax import random, jit
+import jax.numpy as jnp
 import pandas as pd
 import pathlib
 import pickle
 from datasets import celeb_dataset_loader, cifar10_data_loader, mnist_data_loader
 from functools import partial
+import util
 
 class Experiment():
     """
@@ -24,6 +26,7 @@ class Experiment():
         self.experiment_name     = experiment_name
         self.experiment_root     = os.path.join(experiment_root, experiment_name)
         self.data_loader         = None
+        self.split_shapes        = None
         self.quantize_level_bits = quantize_level_bits
         self.checkpoint_iters    = checkpoint_iters
 
@@ -61,7 +64,6 @@ class Experiment():
     #             - model_state.npz
     #             - key.p
     #             - losses.txt
-    #         - plots
 
     @property
     def experiment_iteration_path(self):
@@ -104,6 +106,25 @@ class Experiment():
     @property
     def losses_path(self):
         return os.path.join(self.checkpoint_path, 'losses.csv')
+
+    # @property
+    # def plots_path(self):
+    #     path = os.path.join(self.experiment_iteration_path, 'plots')
+    #     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+    #     return path
+
+    # def get_comparison_folder(self, exp):
+    #     plots_path = self.plots_path
+    #     folder_name = '%s_%d'%(exp.experiment_name, exp.current_iteration)
+    #     path = os.path.join(plots_path, folder_name)
+    #     pathlib.Path(path).mkdir(parents=True, exist_ok=True)
+    #     return path
+
+    #####################################################################
+
+    @property
+    def is_nf(self):
+        return type(self.model).__name__ == 'GLOW'
 
     #####################################################################
 
@@ -182,8 +203,9 @@ class Experiment():
         else:
             assert 0, 'Invalid dataset'
 
-        data_loader, x_shape = data_fun(data_key, quantize_level_bits=self.quantize_level_bits, split=split)
-        self.data_loader = data_loader
+        data_loader, x_shape, split_shapes = data_fun(data_key, quantize_level_bits=self.quantize_level_bits, split=split)
+        self.data_loader  = data_loader
+        self.split_shapes = split_shapes
         return x_shape
 
     #####################################################################
@@ -308,3 +330,71 @@ class Experiment():
                              self.current_iteration,
                              self.checkpoint_iters,
                              self.checkpoint_experiment)
+
+    #####################################################################
+
+    def get_jitted_sampler(self, for_plotting=True):
+        """ Create a sampler that we can use quickly """
+        jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST))
+
+        @partial(jit, static_argnums=(0,))
+        def sampler(n_samples, key, temperature, sigma, **kwargs):
+            # Use vmap to pull multiple samples
+            k1, k2 = random.split(key, 2)
+
+            # Sample from the latent state with some temperature
+            z = random.normal(k1, (n_samples,) + self.model.z_shape)*temperature
+
+            # Invert the samples
+            log_pfz, fz, _ = jitted_inverse(jnp.zeros(n_samples), z, (), key=k2, sigma=sigma, **kwargs)
+
+            # Undo the dequantization and logit scaling to make sure we end up between 0 and 1
+            if(for_plotting):
+                fz /= (2.0**self.quantize_level_bits)
+                fz *= (1.0 - 2*0.05) # This is the default scaling using in nf.Logit
+                fz += 0.05
+
+            return log_pfz, fz
+
+        return sampler
+
+    #####################################################################
+
+    def get_jitted_forward(self):
+        """ Create an encoder that we can use quickly """
+        jitted_forward = jit(partial(self.model.forward, self.model.params, self.model.state, test=util.TEST))
+
+        @partial(jit, static_argnums=(0,))
+        def encoder(x, key, **kwargs):
+            if(x.ndim == len(self.model.x_shape)):
+                batch_size = 1
+            else:
+                batch_size = x.shape[0]
+
+            log_px, z, _ = jitted_forward(jnp.zeros(batch_size), x, (), key=key, **kwargs)
+            return log_px, z
+
+        return encoder
+
+    def get_jitted_inverse(self, for_plotting=True):
+        """ Create an decoder that we can use quickly """
+        jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST, s=0.0))
+
+        @partial(jit, static_argnums=(0,))
+        def decoder(z, key, **kwargs):
+            if(z.ndim == len(self.model.z_shape)):
+                batch_size = 1
+            else:
+                batch_size = z.shape[0]
+
+            log_px, x, _ = jitted_inverse(jnp.zeros(batch_size), z, (), key=key, **kwargs)
+
+            # Undo the dequantization and logit scaling to make sure we end up between 0 and 1
+            if(for_plotting):
+                x /= (2.0**self.quantize_level_bits)
+                x *= (1.0 - 2*0.05) # This is the default scaling using in nf.Logit
+                x += 0.05
+
+            return log_px, x
+
+        return decoder
