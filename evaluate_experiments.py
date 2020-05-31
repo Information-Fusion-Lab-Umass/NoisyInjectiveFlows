@@ -43,6 +43,7 @@ def generate_images_for_fid(key,
         # Save the images
         for j, im in enumerate(x):
             path = os.path.join(save_folder, '%s.jpg'%index)
+            im = im[:,:,0] if im.shape[-1] == 1 else im
             matplotlib.image.imsave(path, im)
             index += 1
 
