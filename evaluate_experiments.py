@@ -125,6 +125,7 @@ def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=
     # Plot the samples
     for i, x in enumerate(samples):
         for j, im in enumerate(x):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
             axes[i,j].imshow(im)
             axes[i,j].set_axis_off()
 
@@ -154,10 +155,12 @@ def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_s
 
     # Plot the samples
     for i, im in enumerate(fz):
+        im = im[:,:,0] if im.shape[-1] == 1 else im
         axes[0,i].imshow(im)
         axes[0,i].set_axis_off()
 
     for i, im in enumerate(x):
+        im = im[:,:,0] if im.shape[-1] == 1 else im
         axes[1,i].imshow(im/(2.0**quantize_level_bits))
         axes[1,i].set_axis_off()
 
@@ -194,6 +197,7 @@ def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=64):
     # Plot the samples
     for i, x in enumerate(samples):
         for j, im in enumerate(x):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
             axes[i,j].imshow(im)
             axes[i,j].set_axis_off()
 
@@ -251,6 +255,7 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
     # Plot the samples
     for i, x in enumerate(all_temperature_samples):
         for j, im in enumerate(x):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
             axes[i,j].imshow(im)
             axes[i,j].set_axis_off()
 
@@ -308,6 +313,7 @@ def samples_vary_s(data_key, key, experiments, n_samples, save_path, n_samples_p
     # Plot the samples
     for i, x in enumerate(all_sigma_samples):
         for j, im in enumerate(x):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
             axes[i,j].imshow(im)
             axes[i,j].set_axis_off()
 
@@ -371,7 +377,8 @@ def interpolate_pairs(data_key, key, experiment, n_pairs, n_interp, save_path):
 
         # Plot
         for j in range(n_interp):
-            axes[i,j].imshow(fz[j])
+            im = fz[j][:,:,0] if fz[j].shape[-1] == 1 else fz[j]
+            axes[i,j].imshow(im)
             axes[i,j].set_axis_off()
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)

@@ -166,7 +166,7 @@ class GLOW(Model):
         n_filters            = meta['n_filters']
         n_blocks             = meta['n_blocks']
         n_multiscale         = meta['n_multiscale']
-        data_init_iterations = meta['data_init_iterations']
+        data_init_iterations = meta.get('data_init_iterations', 1000)
 
         return GLOW(dataset_name, x_shape, n_filters, n_blocks, n_multiscale, data_init_iterations)
 

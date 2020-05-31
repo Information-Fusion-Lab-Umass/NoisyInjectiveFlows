@@ -16,10 +16,6 @@ if(__name__ == '__main__'):
 
     parser.add_argument('--names', nargs='+', help='Experiments to compare', required=True)
 
-    parser.add_argument('--initialize',
-                        action='store_true',
-                        help='Construct the files that will be used to actually create the FID experiments')
-
     parser.add_argument('--quantize',
                         action='store',
                         type=int,
