@@ -16,12 +16,14 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
+import matplotlib
 import matplotlib.pyplot as plt
-from tqdm import tqdm_notebook
 from functools import partial
 
 from jax import random, vmap, jit, value_and_grad
 import jax.numpy as jnp
+from tqdm import tqdm
+import pathlib
 
 def download_url(data_folder, filename, url):
     # language=rst
@@ -137,8 +139,9 @@ def mnist_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_fo
     validation_images, validation_labels = images[n_train + n_test:], labels[n_train + n_test:]
 
     # def data_loader(batch_shape, key=None, start=None, train=True, labels=False):
-    def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True):
+    def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True, return_if_at_end=False):
         assert (key is None)^(start is None)
+        at_end = False
 
         if(split == 'train'):
             images, labels = train_images, train_labels
@@ -155,15 +158,27 @@ def mnist_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_fo
         else:
             n_files = batch_shape[-1]
             batch_idx = start + jnp.arange(n_files)
+
+            # Trim the batch indices so that we don't exceed the size of the dataset
+            batch_idx = batch_idx[batch_idx < images.shape[0]]
+            batch_shape = batch_shape[:-1] + (batch_idx.shape[0],)
+
+            # Check if we're at the end of the dataset
+            if(batch_idx.shape[0] < n_files):
+                at_end = True
+
             batch_idx = np.broadcast_to(batch_idx, batch_shape)
 
         image_batch, label_batch = images[batch_idx,...], labels[batch_idx,...]
         if(onehot == False):
             label_batch = np.nonzero(label_batch)[-1].reshape(batch_shape)
 
-        return (image_batch, label_batch) if return_labels else image_batch
+        ret = (image_batch, label_batch) if return_labels else image_batch
+        if(return_if_at_end):
+            return ret, at_end
+        return ret
 
-    return data_loader, x_shape
+    return data_loader, x_shape, (n_train, n_test, n_validation)
 
 ############################################################################################################################################################
 
@@ -282,8 +297,9 @@ def cifar10_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_
     validation_images, validation_labels = images[n_train + n_test:], labels[n_train + n_test:]
 
     # def data_loader(batch_shape, key=None, start=None, train=True, labels=False):
-    def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True):
+    def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True, return_if_at_end=False):
         assert (key is None)^(start is None)
+        at_end = False
 
         if(split == 'train'):
             images, labels = train_images, train_labels
@@ -300,15 +316,27 @@ def cifar10_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_
         else:
             n_files = batch_shape[-1]
             batch_idx = start + jnp.arange(n_files)
+
+            # Trim the batch indices so that we don't exceed the size of the dataset
+            batch_idx = batch_idx[batch_idx < images.shape[0]]
+            batch_shape = batch_shape[:-1] + (batch_idx.shape[0],)
+
+            # Check if we're at the end of the dataset
+            if(batch_idx.shape[0] < n_files):
+                at_end = True
+
             batch_idx = np.broadcast_to(batch_idx, batch_shape)
 
         image_batch, label_batch = images[batch_idx,...], labels[batch_idx,...]
         if(onehot == False):
             label_batch = np.nonzero(label_batch)[-1].reshape(batch_shape)
 
-        return (image_batch, label_batch) if return_labels else image_batch
+        ret = (image_batch, label_batch) if return_labels else image_batch
+        if(return_if_at_end):
+            return ret, at_end
+        return ret
 
-    return data_loader, x_shape
+    return data_loader, x_shape, (n_train, n_test, n_validation)
 
 ############################################################################################################################################################
 
@@ -330,7 +358,7 @@ def get_celeb_dataset(quantize_level_bits=8, strides=(5, 5), crop=(12, 4), n_ima
     quantize_factor = 256/(2**quantize_level_bits)
 
     images = []
-    for path in tqdm_notebook(all_files):
+    for path in tqdm(all_files):
         im = plt.imread(path, format='jpg')
         im = im[::strides[0],::strides[1]][crop[0]:,crop[1]:]
         images.append(im//quantize_factor)
@@ -341,15 +369,20 @@ def get_celeb_dataset(quantize_level_bits=8, strides=(5, 5), crop=(12, 4), n_ima
 
 ############################################################################################################################################################
 
-def celeb_dataset_loader(key, quantize_level_bits=8, strides=(2, 2), crop=((26, -19), (12, -13)), n_images=-1, split=(0.6, 0.2, 0.2), data_folder='data/img_align_celeba/'):
+def celeb_dataset_loader(key,
+                         quantize_level_bits=8,
+                         strides=(2, 2),
+                         crop=((26, -19), (12, -13)),
+                         n_images=-1,
+                         split=(0.6, 0.2, 0.2),
+                         data_folder='data/img_align_celeba/'):
     # language=rst
     """
     Load the celeb A dataset.
 
-    :param data_folder: Where to download the data to
+    :param data_folder: Where the data exists.  We expect the user to manually download this!!!
     """
     celeb_dir = data_folder
-
     all_files = glob.glob('%s*.jpg'%celeb_dir)
 
     # Sort these the images
@@ -384,15 +417,24 @@ def celeb_dataset_loader(key, quantize_level_bits=8, strides=(2, 2), crop=((26, 
     validation_indices = shuffled_file_indices[n_train + n_test:]
 
     # The loader will be used to pull batches of data
-    # def data_loader(key, n_gpus, batch_size, indices=None):
-    def data_loader(batch_shape, key=None, start=None, split='train'):
+    def data_loader(batch_shape, key=None, start=None, split='train', return_if_at_end=False):
         assert (key is None)^(start is None)
+        at_end = False
 
         # We have the option to choose the index of the images
         if(key is None):
             data_indices = file_indices
             n_files = batch_shape[-1]
             batch_idx = start + jnp.arange(n_files)
+
+            # Trim the batch indices so that we don't exceed the size of the dataset
+            batch_idx = batch_idx[batch_idx < validation_indices.shape[0]]
+            batch_shape = batch_shape[:-1] + (batch_idx.shape[0],)
+
+            # Check if we're at the end of the dataset
+            if(batch_idx.shape[0] < n_files):
+                at_end = True
+
             batch_idx = np.broadcast_to(batch_idx, batch_shape)
         else:
             if(split == 'train'):
@@ -417,9 +459,12 @@ def celeb_dataset_loader(key, quantize_level_bits=8, strides=(2, 2), crop=((26, 
 
             images[k] = im
 
-        return images.reshape(batch_shape + x_shape)
+        ret = images.reshape(batch_shape + x_shape)
+        if(return_if_at_end):
+            return ret, at_end
+        return ret
 
-    return data_loader, x_shape
+    return data_loader, x_shape, (n_train, n_test, n_validation)
 
 ############################################################################################################################################################
 
@@ -451,7 +496,7 @@ def get_BSDS300_data(quantize_level_bits=8, strides=(1, 1), crop=(0, 0), data_fo
     # Load the files
     images = []
     shape = None
-    for path in tqdm_notebook(train_images):
+    for path in tqdm(train_images):
         im = plt.imread(path, format='jpg')
         if(shape is None):
             shape = im.shape
@@ -463,7 +508,7 @@ def get_BSDS300_data(quantize_level_bits=8, strides=(1, 1), crop=(0, 0), data_fo
     train_images = np.array(images, dtype=np.int32)
 
     images = []
-    for path in tqdm_notebook(test_images):
+    for path in tqdm(test_images):
         im = plt.imread(path, format='jpg')
         if(im.shape != shape):
             im = im.transpose((1, 0, 2))
@@ -864,3 +909,18 @@ def STL10_dataset_loader(quantize_level_bits=8, strides=(1, 1), crop=(0, 0), dat
         return data[batch_idx,...]//quantize_factor
 
     return data_loader, x_shape
+
+############################################################################################################################################################
+
+def save_fashion_mnist_to_samples():
+    train_images, _, test_images, _ = get_mnist_data(quantize_level_bits=8, data_folder='data/mnist/', kind='fashion')
+    images = np.concatenate([train_images, test_images])
+
+    # Make sure we've created the image folder
+    save_folder = 'FID/fashion_mnist_images/'
+    pathlib.Path(save_folder).mkdir(parents=True, exist_ok=True)
+
+    # Convert to jpg files
+    for i, im in enumerate(images):
+        path = os.path.join(save_folder, '%s.jpg'%i)
+        matplotlib.image.imsave(path, im[:,:,0])

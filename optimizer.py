@@ -123,11 +123,10 @@ class Optimizer():
     #####################################################################
 
     def train_step(self, key, i, replicated_model_state, replicated_opt_state, data_loader):
-        # data_key, gpu_key = fast_split(key, 2)
         data_key, gpu_key = fast_split(key, 2)
 
         # Take the next batch of data.  This has a huge performance impact!!!
-        x_batch = data_loader((self.n_gpus, self.batch_size), key=key, split='train')
+        x_batch = data_loader((self.n_gpus, self.batch_size), key=data_key, split='train')
 
         # We need to replicate things for each gpu
         train_keys = jnp.array(fast_split(gpu_key, self.n_gpus))
@@ -169,10 +168,10 @@ class Optimizer():
                 losses = save_hook(i, key, losses)
 
             # Make sure we do this after the checkpoint
-            key, _ = fast_split(key, 2)
+            key, *keys = fast_split(key, 2)
 
             # Take a gradient step
-            val, replicated_model_state, replicated_opt_state = self.train_step(key, i, replicated_model_state, replicated_opt_state, data_loader)
+            val, replicated_model_state, replicated_opt_state = self.train_step(keys[0], i, replicated_model_state, replicated_opt_state, data_loader)
 
             # Convert to bits per dimension and save
             val /= bits_per_dim_scale
