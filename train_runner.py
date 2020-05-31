@@ -18,7 +18,7 @@ if(__name__ == '__main__'):
                         action='store',
                         type=int,
                         help='The number of bits to use in quantization',
-                        default=5)
+                        default=3)
 
     parser.add_argument('--start_it',
                         action='store',
@@ -48,7 +48,7 @@ if(__name__ == '__main__'):
                         action='store',
                         type=str,
                         help='Settings for the optimizer',
-                        default='adam')
+                        default='adam_warmup')
     args = parser.parse_args()
 
     # Load the experiment object

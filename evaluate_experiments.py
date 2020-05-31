@@ -19,7 +19,7 @@ def generate_images_for_fid(key,
                             sigma,
                             n_samples,
                             save_folder,
-                            n_samples_per_batch=32):
+                            n_samples_per_batch=16):
     filled_sampler = partial(sampler, temperature=temperature, sigma=sigma)
 
     # Generate the keys we will use
@@ -106,7 +106,7 @@ def batched_evaluate(key, fun, x, n_samples_per_batch):
 
 ######################################################################################################################################################
 
-def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=32):
+def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=16):
     """ Compare samples from the different models """
 
     samples = []
@@ -135,7 +135,7 @@ def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=
 
 ################################################################################################################################################
 
-def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_samples, quantize_level_bits, n_samples_per_batch=32):
+def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_samples, quantize_level_bits, n_samples_per_batch=16):
     """ Generate reconstructions of data """
 
     # Pull samples
@@ -170,7 +170,7 @@ def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_s
 
 ######################################################################################################################################################
 
-def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=32):
+def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=16):
     """ Compare samples at different values of t """
 
     # Define the samples we'll be using
@@ -207,7 +207,7 @@ def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=32):
 
 ######################################################################################################################################################
 
-def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_per_batch=32, reuse_key=True):
+def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_per_batch=16, reuse_key=True):
     """ Compare the same sample for different values of t """
 
     # Use a sample from the NF model for these plots
@@ -265,7 +265,7 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
 
 ######################################################################################################################################################
 
-def samples_vary_s(data_key, key, experiments, n_samples, save_path, n_samples_per_batch=32, reuse_key=True):
+def samples_vary_s(data_key, key, experiments, n_samples, save_path, n_samples_per_batch=16, reuse_key=True):
     """ Compare the same sample for different values of t """
 
     # Use a sample from the NF model for these plots
@@ -438,7 +438,7 @@ def save_best_s_for_nll(key, experiments, save_path, batch_size=16):
     with open(save_path, 'w') as f:
         yaml.dump(best_values_of_s, f)
 
-def validation_nll_from_best_s(key, experiments, best_s_path, save_path, n_samples_per_batch=32):
+def validation_nll_from_best_s(key, experiments, best_s_path, save_path, n_samples_per_batch=16):
     # Load the best values of s for each model
     with open(best_s_path) as f:
         best_values_of_s = yaml.safe_load(f)
