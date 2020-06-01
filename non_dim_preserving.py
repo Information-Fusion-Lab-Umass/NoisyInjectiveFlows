@@ -129,8 +129,8 @@ def AffineGaussianPriorDiagCov(out_dim, A_init=glorot_normal(), name='unnamed'):
 
         # In case we want to change the noise model.  This equation corresponds
         # to how we are changing noise in the inverse section
-        # sigma = kwargs.get('sigma', 1.0)
-        # log_diag_cov = log_diag_cov + 2*jnp.log(sigma)
+        sigma = kwargs.get('sigma', 1.0)
+        log_diag_cov = log_diag_cov + 2*jnp.log(sigma)
         diag_cov = jnp.exp(log_diag_cov)
 
         x_dim, z_dim = A.shape
