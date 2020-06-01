@@ -337,7 +337,6 @@ class Experiment():
         """ Create a sampler that we can use quickly """
         jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST))
 
-        @partial(jit, static_argnums=(0,))
         def sampler(n_samples, key, temperature, sigma, **kwargs):
             # Use vmap to pull multiple samples
             k1, k2 = random.split(key, 2)
@@ -364,14 +363,13 @@ class Experiment():
         """ Create an encoder that we can use quickly """
         jitted_forward = jit(partial(self.model.forward, self.model.params, self.model.state, test=util.TEST))
 
-        @partial(jit, static_argnums=(0,))
         def encoder(x, key, **kwargs):
             if(x.ndim == len(self.model.x_shape)):
                 batch_size = 1
             else:
                 batch_size = x.shape[0]
 
-            log_px, z, _ = jitted_forward(jnp.zeros(batch_size), x, (), sigma=1.0, key=key, **kwargs)
+            log_px, z, _ = jitted_forward(jnp.zeros(batch_size), x, (), key=key, **kwargs)
             return log_px, z
 
         return encoder
@@ -380,7 +378,6 @@ class Experiment():
         """ Create an decoder that we can use quickly """
         jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST, s=0.0))
 
-        @partial(jit, static_argnums=(0,))
         def decoder(z, key, **kwargs):
             if(z.ndim == len(self.model.z_shape)):
                 batch_size = 1

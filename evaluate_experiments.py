@@ -245,6 +245,7 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
     for exp, sampler, encoder, decoder in experiments:
 
         # Encode the image
+        print(x.shape)
         _, z = encoder(x, key=key, sigma=1.0) # Need to verify we want sigma of 1.0
 
         # Decode at different temperatures
