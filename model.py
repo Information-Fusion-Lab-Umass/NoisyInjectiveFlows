@@ -191,8 +191,8 @@ class GLOW(Model):
 
 class SimpleNIF(GLOW):
 
-    def __init__(self, dataset_name, x_shape, z_dim, n_filters=256, n_blocks=16, n_multiscale=5):
-        super().__init__(dataset_name, x_shape, n_filters, n_blocks, n_multiscale)
+    def __init__(self, dataset_name, x_shape, z_dim, n_filters=256, n_blocks=16, n_multiscale=5, data_init_iterations=1000):
+        super().__init__(dataset_name, x_shape, n_filters, n_blocks, n_multiscale, data_init_iterations)
         self.z_dim = z_dim
 
     def get_prior(self):
@@ -211,14 +211,15 @@ class SimpleNIF(GLOW):
     @classmethod
     def initialize_from_meta_data(cls, meta):
         """ Using a meta data, construct an instance of this model """
-        dataset_name = meta['dataset_name']
-        x_shape      = tuple(meta['x_shape'])
-        n_filters    = meta['n_filters']
-        n_blocks     = meta['n_blocks']
-        n_multiscale = meta['n_multiscale']
-        z_dim        = meta['z_dim']
+        dataset_name         = meta['dataset_name']
+        x_shape              = tuple(meta['x_shape'])
+        n_filters            = meta['n_filters']
+        n_blocks             = meta['n_blocks']
+        n_multiscale         = meta['n_multiscale']
+        z_dim                = meta['z_dim']
+        data_init_iterations = meta.get('data_init_iterations', 1000)
 
-        return SimpleNIF(dataset_name, x_shape, z_dim, n_filters, n_blocks, n_multiscale)
+        return SimpleNIF(dataset_name, x_shape, z_dim, n_filters, n_blocks, n_multiscale, data_init_iterations)
 
 ######################################################################################################################################################
 
