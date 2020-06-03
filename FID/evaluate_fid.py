@@ -65,6 +65,7 @@ if(__name__ == '__main__'):
                 with open(meta_path, 'w') as f:
                     yaml.dump(meta, f)
 
-
-
-    print(results)
+    # Save the total results
+    save_name = '_'.join(args.names) + '_fid_scores.yaml'
+    with open(save_name, 'w') as f:
+        yaml.dump(results, f)
