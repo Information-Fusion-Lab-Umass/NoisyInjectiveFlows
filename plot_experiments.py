@@ -19,7 +19,7 @@ if(__name__ == '__main__'):
                         action='store',
                         type=int,
                         help='The number of bits to use in quantization',
-                        default=5)
+                        default=3)
 
     parser.add_argument('--experiment_root',
                         action='store',
@@ -27,13 +27,31 @@ if(__name__ == '__main__'):
                         help='The root directory of the experiments folder',
                         default='Experiments')
 
+    parser.add_argument('--checkpoint',
+                        action='store',
+                        type=int,
+                        help='What checkpoint to use',
+                        default=-1)
+
     parser.add_argument('--results_root',
                         action='store',
                         type=str,
                         help='The root directory of the results folder',
                         default='Results')
 
+    parser.add_argument('--compare_baseline_samples',
+                        action='store_true',
+                        help='')
+
+    parser.add_argument('--compare_vertical',
+                        action='store_true',
+                        help='')
+
     parser.add_argument('--compare_samples',
+                        action='store_true',
+                        help='')
+
+    parser.add_argument('--compare_full_samples',
                         action='store_true',
                         help='')
 
@@ -65,6 +83,9 @@ if(__name__ == '__main__'):
                         action='store_true',
                         help='')
 
+    parser.add_argument('--manifold_penalty',
+                        action='store_true',
+                        help='')
 
     args = parser.parse_args()
 
@@ -74,9 +95,10 @@ if(__name__ == '__main__'):
         exp = Experiment(name,
                          args.quantize,
                          None,
-                         start_it=-1,
+                         start_it=args.checkpoint,
                          experiment_root=args.experiment_root)
         exp.load_experiment()
+
         sampler = exp.get_jitted_sampler()
         encoder = exp.get_jitted_forward()
         decoder = exp.get_jitted_inverse()
@@ -87,16 +109,40 @@ if(__name__ == '__main__'):
     results_folder = os.path.join(args.results_root, folder_name)
     pathlib.Path(results_folder).mkdir(parents=True, exist_ok=True)
 
+    # Compare samples between a model and a baseline
+    if(args.compare_baseline_samples):
+        n_samples = 8
+        key = random.PRNGKey(0)
+        save_path = os.path.join(results_folder, 'compare_baseline_samples.pdf')
+        baseline_sampler = all_experiments[0][1]
+        sampler = all_experiments[1][1]
+        evaluate_experiments.compare_manifold_vs_full_samples(key, sampler, baseline_sampler, n_samples, save_path)
+
+    # Compare samples between the all of the models vertically
+    if(args.compare_vertical):
+        n_samples = 3
+        key = random.PRNGKey(1)
+        save_path = os.path.join(results_folder, 'compare_vertical.pdf')
+        evaluate_experiments.compare_vertical(key, all_experiments, n_samples, save_path)
+
+
     # Compare samples between the all of the models
     if(args.compare_samples):
-        n_samples = 16
-        key = random.PRNGKey(0)
+        n_samples = 8
+        key = random.PRNGKey(3)
         save_path = os.path.join(results_folder, 'compare_samples.pdf')
         evaluate_experiments.compare_samples(key, all_experiments, n_samples, save_path)
 
+    # Compare samples between the all of the models
+    if(args.compare_full_samples):
+        n_samples = 8
+        key = random.PRNGKey(0)
+        save_path = os.path.join(results_folder, 'compare_full_samples.pdf')
+        evaluate_experiments.compare_samples(key, all_experiments, n_samples, save_path, sigma=1.0)
+
     # Plot reconstructions for each of the models
     if(args.reconstructions):
-        n_samples = 16
+        n_samples = 8
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
 
@@ -106,7 +152,7 @@ if(__name__ == '__main__'):
 
     # Compare different temperature samples
     if(args.vary_t):
-        n_samples = 16
+        n_samples = 8
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'vary_t.pdf')
@@ -114,7 +160,7 @@ if(__name__ == '__main__'):
 
     # Compare different sigma samples
     if(args.vary_s):
-        n_samples = 16
+        n_samples = 8
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'vary_s.pdf')
@@ -122,7 +168,7 @@ if(__name__ == '__main__'):
 
     # Compare different temperature samples
     if(args.compare_t):
-        n_samples = 16
+        n_samples = 8
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'compare_t.pdf')
@@ -152,3 +198,8 @@ if(__name__ == '__main__'):
         best_s_path = os.path.join(results_folder, 'best_s_for_nll.yaml')
         save_path = os.path.join(results_folder, 'nll_comparison.yaml')
         evaluate_experiments.validation_nll_from_best_s(key, all_experiments, best_s_path, save_path)
+
+    # See what images correspond to the varying manifold penalties
+    if(args.manifold_penalty):
+        key = random.PRNGKey(0)
+        evaluate_experiments.manifold_penalty(key, all_experiments[0][0], None)

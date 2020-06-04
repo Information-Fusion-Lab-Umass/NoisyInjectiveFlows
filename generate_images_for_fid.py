@@ -55,7 +55,7 @@ if(__name__ == '__main__'):
     assert os.path.exists(fid_path)
 
     jax_key = random.PRNGKey(0)
-    n_samples = 15000
+    n_samples = 25000
 
     # Define the combinations of sigma and temperatures we will use
     # sigmas = np.linspace(0.0, 1.0, 30) # Will be used with temp of 1.0
@@ -69,7 +69,7 @@ if(__name__ == '__main__'):
     #     t = float(t)
     #     configurations.append((0.0, t))
 
-    configurations = [(0.0, 1.0)]
+    configurations = [(0.3, 1.0)]
 
     # Loop over the experiments
     for exp, sampler, encoder, decoder in all_experiments:

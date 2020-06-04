@@ -150,6 +150,13 @@ def AffineGaussianPriorDiagCov(out_dim, A_init=glorot_normal(), name='unnamed'):
         log_hx -= 0.5*jnp.linalg.slogdet(ATSA)[1]
         log_hx -= 0.5*log_diag_cov.sum()
         log_hx -= 0.5*x_dim*jnp.log(2*jnp.pi)
+
+        # In case we want to retrieve the manifold penalty
+        get_manifold_penalty = kwargs.get('get_manifold_penalty', False)
+        if(get_manifold_penalty):
+            _, mp, _ = tall_affine_posterior_diag_cov(x, np.zeros_like(x), A, log_diag_cov, 1.0)
+            state = (mp,)
+
         return log_px + log_hx, z, state
 
     def inverse(params, state, log_pz, z, condition, **kwargs):
@@ -170,7 +177,7 @@ def AffineGaussianPriorDiagCov(out_dim, A_init=glorot_normal(), name='unnamed'):
         key = kwargs.pop('key', None)
         if(key is not None):
             sigma = kwargs.get('sigma', 1.0)
-            noise = random.normal(key, x.shape)*jnp.exp(0.5*log_diag_cov)*sigma # CHANGE THIS MANUALLY FOR THE MOMENT
+            noise = random.normal(key, x.shape)*jnp.exp(0.5*log_diag_cov)*sigma
             x += noise
 
             # Compute N(x|Az+b, Sigma)
