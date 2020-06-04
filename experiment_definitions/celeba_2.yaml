@@ -1,0 +1,11 @@
+model: 'SimpleNIF'
+dataset_name: 'CelebA'
+n_filters: 256
+n_blocks: 16
+n_multiscale: 5
+x_shape:
+  - 64
+  - 64
+  - 3
+z_dim: 2
+data_init_iterations: 10000

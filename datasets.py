@@ -295,6 +295,7 @@ def cifar10_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_
     train_images, train_labels = images[:n_train], labels[:n_train]
     test_images, test_labels = images[n_train:n_train + n_test], labels[n_train:n_train + n_test]
     validation_images, validation_labels = images[n_train + n_test:], labels[n_train + n_test:]
+    tpv_images, tpv_label = images[n_train:], labels[n_train:]
 
     # def data_loader(batch_shape, key=None, start=None, train=True, labels=False):
     def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True, return_if_at_end=False):
@@ -307,6 +308,8 @@ def cifar10_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_
             images, labels = test_images, test_labels
         elif(split == 'validation'):
             images, labels = validation_images, validation_labels
+        elif(split == 'tpv'):
+            images, labels = tpv_images, tpv_label
         else:
             assert 0, 'Invalid split name.  Choose from \'train\', \'test\' or \'validation\''
 
@@ -331,9 +334,11 @@ def cifar10_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_
         if(onehot == False):
             label_batch = np.nonzero(label_batch)[-1].reshape(batch_shape)
 
+
         ret = (image_batch, label_batch) if return_labels else image_batch
         if(return_if_at_end):
             return ret, at_end
+
         return ret
 
     return data_loader, x_shape, (n_train, n_test, n_validation)

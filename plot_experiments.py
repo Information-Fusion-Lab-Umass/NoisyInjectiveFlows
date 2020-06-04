@@ -86,6 +86,9 @@ if(__name__ == '__main__'):
     parser.add_argument('--manifold_penalty',
                         action='store_true',
                         help='')
+    parser.add_argument('--save_embedding',
+                        action='store_true',
+                        help='')
 
     args = parser.parse_args()
 
@@ -108,6 +111,24 @@ if(__name__ == '__main__'):
     folder_name = '_'.join(['%s_%d'%(exp.experiment_name, exp.current_iteration) for exp, _, _, _ in all_experiments])
     results_folder = os.path.join(args.results_root, folder_name)
     pathlib.Path(results_folder).mkdir(parents=True, exist_ok=True)
+
+    # Save Embeddings
+    if(args.save_embedding):
+        save_path = os.path.join(results_folder, 'embedding')
+        key = random.PRNGKey(0)
+        data_key = random.PRNGKey(0)
+
+        for exp, _, encoder, decoder in all_experiments:
+            data_loader = exp.data_loader
+            print('starting_save_embeddings')
+            embedding_path = os.path.join(save_path, str(exp.experiment_name))
+            pathlib.Path(embedding_path).mkdir(parents=True, exist_ok=True)
+            evaluate_experiments.save_embeddings(key, data_loader, encoder, embedding_path, test=True, n_samples_per_batch=4)
+            print('test_done')
+            evaluate_experiments.save_embeddings(key, data_loader, encoder, embedding_path, test=False, n_samples_per_batch=4)
+
+
+        
 
     # Compare samples between a model and a baseline
     if(args.compare_baseline_samples):

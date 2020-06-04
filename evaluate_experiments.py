@@ -9,6 +9,8 @@ from functools import partial
 import pandas as pd
 from jax.experimental import optimizers
 import yaml
+import jax.numpy as np
+import numpy as onp
 import jax.ops
 
 ######################################################################################################################################################
@@ -633,16 +635,15 @@ def get_embeddings_test(key, data_loader, model, n_samples_per_batch=4):
     """
     Save reconstructions
     """
-    names, output_shape, params, state, forward, inverse = model
     inital_key = key
     embeddings = []
     labels = []
     for j in range(10000//n_samples_per_batch):
         key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, False, True)
+        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'tpv', True, True)
         keys = np.array(random.split(key, 64))
-        log_px, finvx, _ = forward(params, state, np.zeros(n_samples_per_batch), _x, (), key=keys[0])
-        embeddings.append(finvx)
+        log_px, z  = model(_x, keys[0])
+        embeddings.append(z)
         labels.extend(_y)
         if(j % 100 == 1):
             print(j)
@@ -654,16 +655,15 @@ def get_embeddings_training(key, data_loader, model, n_samples_per_batch=4):
     """
     Save reconstructions
     """
-    names, output_shape, params, state, forward, inverse = model
     inital_key = key
     embeddings = []
     labels = []
     for j in range(50000//n_samples_per_batch):
         key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, True, True)
+        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'train', True, True)
         keys = np.array(random.split(key, 64))
-        log_px, finvx, _ = forward(params, state, np.zeros(n_samples_per_batch), _x, (), key=keys[0])
-        embeddings.append(finvx)
+        log_px, z  = model(_x, keys[0])
+        embeddings.append(z)
         labels.extend(_y)
         if(j % 100 == 1):
             print(j)
@@ -671,21 +671,18 @@ def get_embeddings_training(key, data_loader, model, n_samples_per_batch=4):
     final_embeddings = np.concatenate(embeddings, axis = 0)
     return final_embeddings, final_labels
 
-def save_embeddings(key, data_loader, nf_model, nif_model, path, test = True, n_samples_per_batch=4):
+
+def save_embeddings(key, data_loader, model, save_path, test = True, n_samples_per_batch=4):
     if(test):
-        test_nf_embeddings, y = get_embeddings_test(key, data_loader, nf_model, n_samples_per_batch=4)
-        test_nif_embeddings, y = get_embeddings_test(key, data_loader, nif_model, n_samples_per_batch=4)
-        test_nf_embeddings, test_nif_embeddings, y = onp.array(test_nf_embeddings), onp.array(test_nif_embeddings), onp.array(y)
-        onp.save(os.path.join(path, 'test_nif_embeddings'), test_nif_embeddings)
-        onp.save(os.path.join(path, 'test_nf_embeddings'), test_nf_embeddings)
-        onp.save(os.path.join(path, 'test_y'), y)
+        test_embeddings, y = get_embeddings_test(key, data_loader, model, n_samples_per_batch=4)
+        test_embeddings,  y = onp.array(test_embeddings), onp.array(y)
+        onp.save(os.path.join(save_path, 'test_embeddings'), test_embeddings)
+        onp.save(os.path.join(save_path, 'test_y'), y)
     else:
-        training_nf_embeddings, y = get_embeddings_training(key, data_loader, nf_model, n_samples_per_batch=4)
-        training_nif_embeddings, y = get_embeddings_training(key, data_loader, nif_model, n_samples_per_batch=4)
-        training_nf_embeddings, training_nif_embeddings, training_y = onp.array(training_nf_embeddings), onp.array(training_nif_embeddings), onp.array(y)
-        onp.save(os.path.join(path, 'training_nif_embeddings'), training_nif_embeddings)
-        onp.save(os.path.join(path, 'training_nf_embeddings'), training_nf_embeddings)
-        onp.save(os.path.join(path, 'training_y'), training_y)
+        training_embeddings, y = get_embeddings_training(key, data_loader, model, n_samples_per_batch=4)
+        training_embeddings, training_y = onp.array(training_embeddings), onp.array(y)
+        onp.save(os.path.join(save_path, 'training__embeddings'), training_embeddings)
+        onp.save(os.path.join(save_path, 'training_y'), training_y)
 
 def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path, test=True, n_samples_per_batch=4):
     if(test):
@@ -717,15 +714,15 @@ def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path, test=T
     #axes[0].set_title('Our Method', fontdict={'fontsize': 18})
     #axes[1].set_title('GLOW', fontdict={'fontsize': 18})
 
-    axes[0].xaxis.set_visible(False)
-    axes[0].yaxis.set_visible(False)
-    axes[1].xaxis.set_visible(False)
-    axes[1].yaxis.set_visible(False)
-    axes[0].set_xlim(1, 11)
-    axes[0].set_ylim(-4, 5)
+    #axes[0].xaxis.set_visible(False)
+    #axes[0].yaxis.set_visible(False)
+    #axes[1].xaxis.set_visible(False)
+    #axes[1].yaxis.set_visible(False)
+    #axes[0].set_xlim(1, 11)
+    #axes[0].set_ylim(-4, 5)
 
-    axes[1].set_xlim(-5, 1.5)
-    axes[1].set_ylim(-5, 2)
+    #axes[1].set_xlim(-5, 1.5)
+    #axes[1].set_ylim(-5, 2)
 
     cbar = fig.colorbar(scatter, boundaries=np.arange(11) - 0.5)
     cbar.set_ticks(np.arange(10))

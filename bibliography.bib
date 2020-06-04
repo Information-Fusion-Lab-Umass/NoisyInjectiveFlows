@@ -1,0 +1,648 @@
+
+@article{kingma_auto-encoding_2013,
+	title = {Auto-{Encoding} {Variational} {Bayes}},
+	url = {http://arxiv.org/abs/1312.6114},
+	abstract = {How can we perform efﬁcient inference and learning in directed probabilistic models, in the presence of continuous latent variables with intractable posterior distributions, and large datasets? We introduce a stochastic variational inference and learning algorithm that scales to large datasets and, under some mild differentiability conditions, even works in the intractable case. Our contributions is two-fold. First, we show that a reparameterization of the variational lower bound yields a lower bound estimator that can be straightforwardly optimized using standard stochastic gradient methods. Second, we show that for i.i.d. datasets with continuous latent variables per datapoint, posterior inference can be made especially efﬁcient by ﬁtting an approximate inference model (also called a recognition model) to the intractable posterior using the proposed lower bound estimator. Theoretical advantages are reﬂected in experimental results.},
+	language = {en},
+	urldate = {2019-09-25},
+	journal = {arXiv:1312.6114 [cs, stat]},
+	author = {Kingma, Diederik P. and Welling, Max},
+	month = dec,
+	year = {2013},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1312.6114}
+}
+
+@article{goodfellow_generative_nodate,
+	title = {Generative {Adversarial} {Nets}},
+	language = {en},
+	author = {Goodfellow, Ian and Pouget-Abadie, Jean and Mirza, Mehdi and Xu, Bing and Warde-Farley, David and Ozair, Sherjil and Courville, Aaron and Bengio, Yoshua},
+	pages = {9}
+}
+
+@article{rezende_variational_nodate,
+	title = {Variational {Inference} with {Normalizing} {Flows}},
+	abstract = {The choice of approximate posterior distribution is one of the core problems in variational inference. Most applications of variational inference employ simple families of posterior approximations in order to allow for efﬁcient inference, focusing on mean-ﬁeld or other simple structured approximations. This restriction has a signiﬁcant impact on the quality of inferences made using variational methods. We introduce a new approach for specifying ﬂexible, arbitrarily complex and scalable approximate posterior distributions. Our approximations are distributions constructed through a normalizing ﬂow, whereby a simple initial density is transformed into a more complex one by applying a sequence of invertible transformations until a desired level of complexity is attained. We use this view of normalizing ﬂows to develop categories of ﬁnite and inﬁnitesimal ﬂows and provide a uniﬁed view of approaches for constructing rich posterior approximations. We demonstrate that the theoretical advantages of having posteriors that better match the true posterior, combined with the scalability of amortized variational approaches, provides a clear improvement in performance and applicability of variational inference.},
+	language = {en},
+	author = {Rezende, Danilo Jimenez and Mohamed, Shakir}
+}
+
+@article{papamakarios_normalizing_2019,
+	title = {Normalizing {Flows} for {Probabilistic} {Modeling} and {Inference}},
+	url = {http://arxiv.org/abs/1912.02762},
+	abstract = {Normalizing ﬂows provide a general mechanism for deﬁning expressive probability distributions, only requiring the speciﬁcation of a (usually simple) base distribution and a series of bijective transformations. There has been much recent work on normalizing ﬂows, ranging from improving their expressive power to expanding their application. We believe the ﬁeld has now matured and is in need of a uniﬁed perspective. In this review, we attempt to provide such a perspective by describing ﬂows through the lens of probabilistic modeling and inference. We place special emphasis on the fundamental principles of ﬂow design, and discuss foundational topics such as expressive power and computational trade-oﬀs. We also broaden the conceptual framing of ﬂows by relating them to more general probability transformations. Lastly, we summarize the use of ﬂows for tasks such as generative modeling, approximate inference, and supervised learning.},
+	language = {en},
+	urldate = {2020-03-16},
+	journal = {arXiv:1912.02762 [cs, stat]},
+	author = {Papamakarios, George and Nalisnick, Eric and Rezende, Danilo Jimenez and Mohamed, Shakir and Lakshminarayanan, Balaji},
+	month = dec,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1912.02762},
+	annote = {Comment: Review article. 60 pages, 4 figures}
+}
+
+@article{dinh_density_2017,
+	title = {Density estimation using {Real} {NVP}},
+	url = {http://arxiv.org/abs/1605.08803},
+	abstract = {Unsupervised learning of probabilistic models is a central yet challenging problem in machine learning. Speciﬁcally, designing models with tractable learning, sampling, inference and evaluation is crucial in solving this task. We extend the space of such models using real-valued non-volume preserving (real NVP) transformations, a set of powerful, stably invertible, and learnable transformations, resulting in an unsupervised learning algorithm with exact log-likelihood computation, exact and efﬁcient sampling, exact and efﬁcient inference of latent variables, and an interpretable latent space. We demonstrate its ability to model natural images on four datasets through sampling, log-likelihood evaluation, and latent variable manipulations.},
+	language = {en},
+	urldate = {2020-03-16},
+	journal = {arXiv:1605.08803 [cs, stat]},
+	author = {Dinh, Laurent and Sohl-Dickstein, Jascha and Bengio, Samy},
+	month = feb,
+	year = {2017},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Artificial Intelligence, Computer Science - Neural and Evolutionary Computing},
+	annote = {arXiv: 1605.08803},
+	annote = {Comment: 10 pages of main content, 3 pages of bibliography, 18 pages of appendix. Accepted at ICLR 2017}
+}
+
+@article{kingma_glow_2018,
+	title = {Glow: {Generative} {Flow} with {Invertible} 1x1 {Convolutions}},
+	shorttitle = {Glow},
+	url = {http://arxiv.org/abs/1807.03039},
+	abstract = {Flow-based generative models (Dinh et al., 2014) are conceptually attractive due to tractability of the exact log-likelihood, tractability of exact latent-variable inference, and parallelizability of both training and synthesis. In this paper we propose Glow, a simple type of generative flow using an invertible 1x1 convolution. Using our method we demonstrate a significant improvement in log-likelihood on standard benchmarks. Perhaps most strikingly, we demonstrate that a generative model optimized towards the plain log-likelihood objective is capable of efficient realistic-looking synthesis and manipulation of large images. The code for our model is available at https://github.com/openai/glow},
+	urldate = {2020-03-16},
+	journal = {arXiv:1807.03039 [cs, stat]},
+	author = {Kingma, Diederik P. and Dhariwal, Prafulla},
+	month = jul,
+	year = {2018},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Artificial Intelligence},
+	annote = {arXiv: 1807.03039},
+	annote = {Comment: 15 pages; fixed typo in abstract}
+}
+
+@article{fefferman_testing_2013,
+	title = {Testing the {Manifold} {Hypothesis}},
+	url = {http://arxiv.org/abs/1310.0425},
+	abstract = {The hypothesis that high dimensional data tend to lie in the vicinity of a low dimensional manifold is the basis of manifold learning. The goal of this paper is to develop an algorithm (with accompanying complexity guarantees) for testing the existence of a manifold that ﬁts a probability distribution supported in a separable Hilbert space, only using i.i.d samples from that distribution. More precisely, our setting is the following. Suppose that data are drawn independently at random from a probability distribution P supported on the unit ball of a separable Hilbert space H. Let G(d, V, τ) be the set of submanifolds of the unit ball of H whose volume is at most V and reach (which is the supremum of all r such that any point at a distance less than r has a unique nearest point on the manifold) is at least τ. Let L(M, P) denote mean-squared distance of a random point from the probability distribution P to M. We obtain an algorithm that tests the manifold hypothesis in the following sense.},
+	language = {en},
+	urldate = {2020-03-16},
+	journal = {arXiv:1310.0425 [math, stat]},
+	author = {Fefferman, Charles and Mitter, Sanjoy and Narayanan, Hariharan},
+	month = dec,
+	year = {2013},
+	keywords = {62G08, Mathematics - Classical Analysis and ODEs, Mathematics - Differential Geometry, Mathematics - Statistics Theory},
+	annote = {arXiv: 1310.0425},
+	annote = {Comment: 47 pages, 7 figures}
+}
+
+@article{kumar_regularized_2020,
+	title = {Regularized {Autoencoders} via {Relaxed} {Injective} {Probability} {Flow}},
+	url = {http://arxiv.org/abs/2002.08927},
+	abstract = {Invertible ﬂow-based generative models are an eﬀective method for learning to generate samples, while allowing for tractable likelihood computation and inference. However, the invertibility requirement restricts models to have the same latent dimensionality as the inputs. This imposes signiﬁcant architectural, memory, and computational costs, making them more challenging to scale than other classes of generative models such as Variational Autoencoders (VAEs). We propose a generative model based on probability ﬂows that does away with the bijectivity requirement on the model and only assumes injectivity. This also provides another perspective on regularized autoencoders (RAEs), with our ﬁnal objectives resembling RAEs with speciﬁc regularizers that are derived by lower bounding the probability ﬂow objective. We empirically demonstrate the promise of the proposed model, improving over VAEs and AEs in terms of sample quality.},
+	language = {en},
+	urldate = {2020-04-30},
+	journal = {arXiv:2002.08927 [cs, stat]},
+	author = {Kumar, Abhishek and Poole, Ben and Murphy, Kevin},
+	month = feb,
+	year = {2020},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 2002.08927},
+	annote = {Comment: AISTATS 2020}
+}
+
+@article{huang_augmented_2020,
+	title = {Augmented {Normalizing} {Flows}: {Bridging} the {Gap} {Between} {Generative} {Flows} and {Latent} {Variable} {Models}},
+	shorttitle = {Augmented {Normalizing} {Flows}},
+	url = {http://arxiv.org/abs/2002.07101},
+	abstract = {In this work, we propose a new family of generative ﬂows on an augmented data space, with an aim to improve expressivity without drastically increasing the computational cost of sampling and evaluation of a lower bound on the likelihood. Theoretically, we prove the proposed ﬂow can approximate a Hamiltonian ODE as a universal transport map. Empirically, we demonstrate stateof-the-art performance on standard benchmarks of ﬂow-based generative modeling.},
+	language = {en},
+	urldate = {2020-04-30},
+	journal = {arXiv:2002.07101 [cs, stat]},
+	author = {Huang, Chin-Wei and Dinh, Laurent and Courville, Aaron},
+	month = feb,
+	year = {2020},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 2002.07101},
+	annote = {Comment: 27 pages, 12 figures}
+}
+
+@article{gemici_normalizing_2016,
+	title = {Normalizing {Flows} on {Riemannian} {Manifolds}},
+	url = {http://arxiv.org/abs/1611.02304},
+	abstract = {We consider the problem of density estimation on Riemannian manifolds. Density estimation on manifolds has many applications in ﬂuid-mechanics, optics and plasma physics and it appears often when dealing with angular variables (such as used in protein folding, robot limbs, gene-expression) and in general directional statistics. In spite of the multitude of algorithms available for density estimation in the Euclidean spaces Rn that scale to large n (e.g. normalizing ﬂows, kernel methods and variational approximations), most of these methods are not immediately suitable for density estimation in more general Riemannian manifolds. We revisit techniques related to homeomorphisms from differential geometry for projecting densities to sub-manifolds and use it to generalize the idea of normalizing ﬂows to more general Riemannian manifolds. The resulting algorithm is scalable, simple to implement and suitable for use with automatic differentiation. We demonstrate concrete examples of this method on the n-sphere Sn.},
+	language = {en},
+	urldate = {2020-04-30},
+	journal = {arXiv:1611.02304 [cs, math, stat]},
+	author = {Gemici, Mevlana C. and Rezende, Danilo and Mohamed, Shakir},
+	month = nov,
+	year = {2016},
+	keywords = {Statistics - Machine Learning, Computer Science - Artificial Intelligence, Mathematics - Statistics Theory},
+	annote = {arXiv: 1611.02304},
+	annote = {Comment: 3 pages, 2 figures, Submitted to Workshop on Bayesian Deep Learning at NIPS 2016}
+}
+
+@book{brehmen_flows_2020,
+	title = {Flows for simultaneous manifold learning and density estimation},
+	url = {https://arxiv.org/pdf/2003.13913.pdf},
+	abstract = {We introduce manifold-modeling flows (MFMFs), a new class of gen-erative models that simultaneously learn the data manifold as well asa tractable probability density on that manifold. Combining aspectsof normalizing flows, GANs, autoencoders, and energy-based mod-els, they have the potential to represent data sets with a manifoldstructure more faithfully and provide handles on dimensionality re-duction, denoising, and out-of-distribution detection. We argue whysuch models should not be trained by maximum likelihood alone andpresent a new training algorithm that separates manifold and den-sity updates. With two pedagogical examples we demonstrate howmanifold-modeling flows let us learn the data manifold and allow forbetter inference than standard flows in the ambient data space.},
+	author = {Brehmen, Johann and Cranmer, Kyle},
+	month = apr,
+	year = {2020}
+}
+
+@article{ratli_multivariate_nodate,
+	title = {Multivariate {Calculus} {II}: {The} geometry of smooth maps},
+	abstract = {This document explores the geometry of smooth maps, building many of the ideas from an analysis of attractor algorithms across surface representations. Through geometric intuition and algebraic analysis of these algorithms, we see how geometry may be pulled back from the co-domain of a smooth nonlinear map to construct a consistent representation of that geometry in the map’s domain, and we study how we might construct algorithms that build on geometric or physical properties of a system so that their behavior is agnostic to the particular choice of representation. These tools and ideas originate in diﬀerential geometry and a study of Riemannian manifolds; this document emphasizes intuition over rigorous construction, particularly as demonstrated by the behavior of ﬁrst-order Taylor expansions. In all cases, the map’s Jacobian remains key to understanding how geometry transforms from one space to another.},
+	language = {en},
+	author = {Ratliﬀ, Nathan}
+}
+
+@article{dai_diagnosing_2019,
+	title = {Diagnosing and {Enhancing} {VAE} {Models}},
+	url = {http://arxiv.org/abs/1903.05789},
+	abstract = {Although variational autoencoders (VAEs) represent a widely inﬂuential deep generative model, many aspects of the underlying energy function remain poorly understood. In particular, it is commonly believed that Gaussian encoder/decoder assumptions reduce the eﬀectiveness of VAEs in generating realistic samples. In this regard, we rigorously analyze the VAE objective, diﬀerentiating situations where this belief is and is not actually true. We then leverage the corresponding insights to develop a simple VAE enhancement that requires no additional hyperparameters or sensitive tuning. Quantitatively, this proposal produces crisp samples and stable FID scores that signiﬁcantly reduce the gap with GAN models when a neutral architecture is applied, all while retaining desirable attributes of the original VAE architecture. A shorter version of this work has been accepted to the ICLR 2019 conference proceedings (Dai and Wipf, 2019). The code for our model is available at https://github.com/daib13/TwoStageVAE.},
+	language = {en},
+	urldate = {2020-05-08},
+	journal = {arXiv:1903.05789 [cs, stat]},
+	author = {Dai, Bin and Wipf, David},
+	month = oct,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Computer Vision and Pattern Recognition},
+	annote = {arXiv: 1903.05789}
+}
+
+@article{ghosh_variational_2019,
+	title = {From {Variational} to {Deterministic} {Autoencoders}},
+	url = {http://arxiv.org/abs/1903.12436},
+	abstract = {Variational Autoencoders (VAEs) provide a theoretically-backed and popular framework for deep generative models. However, learning a VAE from data poses still unanswered theoretical questions and considerable practical challenges. In this work, we propose an alternative framework for generative modeling that is simpler, easier to train, and deterministic, yet has many of the advantages of the VAE. We observe that sampling a stochastic encoder in a Gaussian VAE can be interpreted as simply injecting noise into the input of a deterministic decoder. We investigate how substituting this kind of stochasticity, with other explicit and implicit regularization schemes, can lead to an equally smooth and meaningful latent space without having to force it to conform to an arbitrarily chosen prior. To retrieve a generative mechanism to sample new data points, we introduce an ex-post density estimation step that can be readily applied to the proposed framework as well as existing VAEs, improving their sample quality. We show, in a rigorous empirical study, that the proposed regularized deterministic autoencoders are able to generate samples that are comparable to, or better than, those of VAEs and more powerful alternatives when applied to images as well as to structured data such as molecules.},
+	language = {en},
+	urldate = {2020-05-08},
+	journal = {arXiv:1903.12436 [cs, stat]},
+	author = {Ghosh, Partha and Sajjadi, Mehdi S. M. and Vergari, Antonio and Black, Michael and Schölkopf, Bernhard},
+	month = oct,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1903.12436},
+	annote = {Comment: Partha Ghosh and Mehdi S. M. Sajjadi contributed equally to this work}
+}
+
+@book{beitler_pie_nodate,
+	title = {{PIE}: {Pseudo}-{Invertible} {Encoder}},
+	url = {https://openreview.net/forum?id=SkgiX2Aqtm},
+	author = {Beitler, Jan Jetze and Sosnovik, Ivan and Smeulders, Arnold}
+}
+
+@article{chen_residual_nodate,
+	title = {Residual {Flows} for {Invertible} {Generative} {Modeling}},
+	abstract = {Flow-based generative models parameterize probability distributions through an invertible transformation and can be trained by maximum likelihood. Invertible residual networks provide a ﬂexible family of transformations where only Lipschitz conditions rather than strict architectural constraints are needed for enforcing invertibility. However, prior work trained invertible residual networks for density estimation by relying on biased log-density estimates whose bias increased with the network’s expressiveness. We give a tractable unbiased estimate of the log density using a “Russian roulette” estimator, and reduce the memory required during training by using an alternative inﬁnite series for the gradient. Furthermore, we improve invertible residual blocks by proposing the use of activation functions that avoid derivative saturation and generalizing the Lipschitz condition to induced mixed norms. The resulting approach, called Residual Flows, achieves state-of-theart performance on density estimation amongst ﬂow-based models, and outperforms networks that use coupling blocks at joint generative and discriminative modeling.},
+	language = {en},
+	author = {Chen, Tian Qi and Behrmann, Jens and Duvenaud, David K and Jacobsen, Joern-Henrik}
+}
+
+@article{parmar_image_2018,
+	title = {Image {Transformer}},
+	url = {http://arxiv.org/abs/1802.05751},
+	abstract = {Image generation has been successfully cast as an autoregressive sequence generation or transformation problem. Recent work has shown that self-attention is an effective way of modeling textual sequences. In this work, we generalize a recently proposed model architecture based on self-attention, the Transformer, to a sequence modeling formulation of image generation with a tractable likelihood. By restricting the selfattention mechanism to attend to local neighborhoods we signiﬁcantly increase the size of images the model can process in practice, despite maintaining signiﬁcantly larger receptive ﬁelds per layer than typical convolutional neural networks. While conceptually simple, our generative models signiﬁcantly outperform the current state of the art in image generation on ImageNet, improving the best published negative log-likelihood on ImageNet from 3.83 to 3.77. We also present results on image super-resolution with a large magniﬁcation ratio, applying an encoder-decoder conﬁguration of our architecture. In a human evaluation study, we ﬁnd that images generated by our super-resolution model fool human observers three times more often than the previous state of the art.},
+	language = {en},
+	urldate = {2020-05-09},
+	journal = {arXiv:1802.05751 [cs]},
+	author = {Parmar, Niki and Vaswani, Ashish and Uszkoreit, Jakob and Kaiser, Łukasz and Shazeer, Noam and Ku, Alexander and Tran, Dustin},
+	month = jun,
+	year = {2018},
+	keywords = {Computer Science - Computer Vision and Pattern Recognition},
+	annote = {arXiv: 1802.05751},
+	annote = {Comment: Appears in International Conference on Machine Learning, 2018. Code available at https://github.com/tensorflow/tensor2tensor}
+}
+
+@article{noauthor_transforming_nodate,
+	title = {Transforming {Variables} {Using} the {Dirac} {Generalized} {Function}},
+	language = {en}
+}
+
+@article{burda_importance_2016,
+	title = {Importance {Weighted} {Autoencoders}},
+	url = {http://arxiv.org/abs/1509.00519},
+	abstract = {The variational autoencoder (VAE; Kingma \& Welling (2014)) is a recently proposed generative model pairing a top-down generative network with a bottom-up recognition network which approximates posterior inference. It typically makes strong assumptions about posterior inference, for instance that the posterior distribution is approximately factorial, and that its parameters can be approximated with nonlinear regression from the observations. As we show empirically, the VAE objective can lead to overly simpliﬁed representations which fail to use the network’s entire modeling capacity. We present the importance weighted autoencoder (IWAE), a generative model with the same architecture as the VAE, but which uses a strictly tighter log-likelihood lower bound derived from importance weighting. In the IWAE, the recognition network uses multiple samples to approximate the posterior, giving it increased ﬂexibility to model complex posteriors which do not ﬁt the VAE modeling assumptions. We show empirically that IWAEs learn richer latent space representations than VAEs, leading to improved test log-likelihood on density estimation benchmarks.},
+	language = {en},
+	urldate = {2020-05-10},
+	journal = {arXiv:1509.00519 [cs, stat]},
+	author = {Burda, Yuri and Grosse, Roger and Salakhutdinov, Ruslan},
+	month = nov,
+	year = {2016},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1509.00519},
+	annote = {Comment: Submitted to ICLR 2015}
+}
+
+@article{zhu_lia_2019,
+	title = {{LIA}: {Latently} {Invertible} {Autoencoder} with {Adversarial} {Learning}},
+	shorttitle = {{LIA}},
+	url = {http://arxiv.org/abs/1906.08090},
+	abstract = {Deep generative models such as Variational AutoEncoder (VAE) and Generative Adversarial Network (GAN) play an increasingly important role in machine learning and computer vision. However, there are two fundamental issues hindering their real-world applications: the difﬁculty of conducting variational inference in VAE and the functional absence of encoding real-world samples in GAN. In this paper, we propose a novel algorithm named Latently Invertible Autoencoder (LIA) to address the above two issues in one framework. An invertible network and its inverse mapping are symmetrically embedded in the latent space of VAE. Thus the partial encoder ﬁrst transforms the input into feature vectors and then the distribution of these feature vectors is reshaped to ﬁt a prior by the invertible network. The decoder proceeds in the reverse order of the encoder’s composite mappings. A two-stage stochasticity-free training scheme is designed to train LIA via adversarial learning, in the sense that the decoder of LIA is ﬁrst trained as a standard GAN with the invertible network and then the partial encoder is learned from an autoencoder by detaching the invertible network from LIA. Experiments conducted on the FFHQ face dataset and three LSUN datasets validate the effectiveness of LIA for inference and generation1.},
+	language = {en},
+	urldate = {2020-05-11},
+	journal = {arXiv:1906.08090 [cs, stat]},
+	author = {Zhu, Jiapeng and Zhao, Deli and Zhou, Bolei and Zhang, Bo},
+	month = dec,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1906.08090}
+}
+
+@article{brock_large_2019,
+	title = {Large {Scale} {GAN} {Training} for {High} {Fidelity} {Natural} {Image} {Synthesis}},
+	url = {http://arxiv.org/abs/1809.11096},
+	abstract = {Despite recent progress in generative image modeling, successfully generating high-resolution, diverse samples from complex datasets such as ImageNet remains an elusive goal. To this end, we train Generative Adversarial Networks at the largest scale yet attempted, and study the instabilities speciﬁc to such scale. We ﬁnd that applying orthogonal regularization to the generator renders it amenable to a simple “truncation trick,” allowing ﬁne control over the trade-off between sample ﬁdelity and variety by reducing the variance of the Generator’s input. Our modiﬁcations lead to models which set the new state of the art in class-conditional image synthesis. When trained on ImageNet at 128×128 resolution, our models (BigGANs) achieve an Inception Score (IS) of 166.5 and Fre´chet Inception Distance (FID) of 7.4, improving over the previous best IS of 52.52 and FID of 18.65.},
+	language = {en},
+	urldate = {2020-05-14},
+	journal = {arXiv:1809.11096 [cs, stat]},
+	author = {Brock, Andrew and Donahue, Jeff and Simonyan, Karen},
+	month = feb,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1809.11096}
+}
+
+@article{karras_style-based_2019,
+	title = {A {Style}-{Based} {Generator} {Architecture} for {Generative} {Adversarial} {Networks}},
+	url = {http://arxiv.org/abs/1812.04948},
+	abstract = {We propose an alternative generator architecture for generative adversarial networks, borrowing from style transfer literature. The new architecture leads to an automatically learned, unsupervised separation of high-level attributes (e.g., pose and identity when trained on human faces) and stochastic variation in the generated images (e.g., freckles, hair), and it enables intuitive, scale-speciﬁc control of the synthesis. The new generator improves the state-of-the-art in terms of traditional distribution quality metrics, leads to demonstrably better interpolation properties, and also better disentangles the latent factors of variation. To quantify interpolation quality and disentanglement, we propose two new, automated methods that are applicable to any generator architecture. Finally, we introduce a new, highly varied and high-quality dataset of human faces.},
+	language = {en},
+	urldate = {2020-05-14},
+	journal = {arXiv:1812.04948 [cs, stat]},
+	author = {Karras, Tero and Laine, Samuli and Aila, Timo},
+	month = mar,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Neural and Evolutionary Computing},
+	annote = {arXiv: 1812.04948},
+	annote = {Comment: CVPR 2019 final version}
+}
+
+@article{razavi_generating_2019,
+	title = {Generating {Diverse} {High}-{Fidelity} {Images} with {VQ}-{VAE}-2},
+	url = {http://arxiv.org/abs/1906.00446},
+	abstract = {We explore the use of Vector Quantized Variational AutoEncoder (VQ-VAE) models for large scale image generation. To this end, we scale and enhance the autoregressive priors used in VQ-VAE to generate synthetic samples of much higher coherence and ﬁdelity than possible before. We use simple feed-forward encoder and decoder networks, making our model an attractive candidate for applications where the encoding and/or decoding speed is critical. Additionally, VQ-VAE requires sampling an autoregressive model only in the compressed latent space, which is an order of magnitude faster than sampling in the pixel space, especially for large images. We demonstrate that a multi-scale hierarchical organization of VQ-VAE, augmented with powerful priors over the latent codes, is able to generate samples with quality that rivals that of state of the art Generative Adversarial Networks on multifaceted datasets such as ImageNet, while not suffering from GAN’s known shortcomings such as mode collapse and lack of diversity.},
+	language = {en},
+	urldate = {2020-05-14},
+	journal = {arXiv:1906.00446 [cs, stat]},
+	author = {Razavi, Ali and Oord, Aaron van den and Vinyals, Oriol},
+	month = jun,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Computer Vision and Pattern Recognition},
+	annote = {arXiv: 1906.00446}
+}
+
+@article{ho_flow_2019,
+	title = {Flow++: {Improving} {Flow}-{Based} {Generative} {Models} with {Variational} {Dequantization} and {Architecture} {Design}},
+	shorttitle = {Flow++},
+	url = {http://arxiv.org/abs/1902.00275},
+	abstract = {Flow-based generative models are powerful exact likelihood models with efﬁcient sampling and inference. Despite their computational efﬁciency, ﬂow-based models generally have much worse density modeling performance compared to stateof-the-art autoregressive models. In this paper, we investigate and improve upon three limiting design choices employed by ﬂow-based models in prior work: the use of uniform noise for dequantization, the use of inexpressive afﬁne ﬂows, and the use of purely convolutional conditioning networks in coupling layers. Based on our ﬁndings, we propose Flow++, a new ﬂow-based model that is now the state-of-the-art non-autoregressive model for unconditional density estimation on standard image benchmarks. Our work has begun to close the signiﬁcant performance gap that has so far existed between autoregressive models and ﬂow-based models. Our implementation is available at: https://github.com/ aravindsrinivas/flowpp.},
+	language = {en},
+	urldate = {2020-05-14},
+	journal = {arXiv:1902.00275 [cs, stat]},
+	author = {Ho, Jonathan and Chen, Xi and Srinivas, Aravind and Duan, Yan and Abbeel, Pieter},
+	month = may,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Neural and Evolutionary Computing},
+	annote = {arXiv: 1902.00275},
+	annote = {Comment: Accepted at ICML 2019}
+}
+
+@incollection{jordan_introduction_1998,
+	address = {Dordrecht},
+	title = {An {Introduction} to {Variational} {Methods} for {Graphical} {Models}},
+	isbn = {978-94-010-6104-9 978-94-011-5014-9},
+	url = {http://link.springer.com/10.1007/978-94-011-5014-9_5},
+	abstract = {This paper presents a tutorial introduction to the use of variational methods for inference and learning in graphical models (Bayesian networks and Markov random ﬁelds). We present a number of examples of graphical models, including the QMR-DT database, the sigmoid belief network, the Boltzmann machine, and several variants of hidden Markov models, in which it is infeasible to run exact inference algorithms. We then introduce variational methods, which exploit laws of large numbers to transform the original graphical model into a simpliﬁed graphical model in which inference is efﬁcient. Inference in the simpiﬁed model provides bounds on probabilities of interest in the original model. We describe a general framework for generating variational transformations based on convex duality. Finally we return to the examples and demonstrate how variational algorithms can be formulated in each case.},
+	language = {en},
+	urldate = {2020-05-15},
+	booktitle = {Learning in {Graphical} {Models}},
+	publisher = {Springer Netherlands},
+	author = {Jordan, Michael I. and Ghahramani, Zoubin and Jaakkola, Tommi S. and Saul, Lawrence K.},
+	editor = {Jordan, Michael I.},
+	year = {1998},
+	doi = {10.1007/978-94-011-5014-9_5}
+}
+
+@article{lawrence_probabilistic_nodate,
+	title = {Probabilistic {Non}-linear {Principal} {Component} {Analysis} with {Gaussian} {Process} {Latent} {Variable} {Models}},
+	abstract = {Summarising a high dimensional data set with a low dimensional embedding is a standard approach for exploring its structure. In this paper we provide an overview of some existing techniques for discovering such embeddings. We then introduce a novel probabilistic interpretation of principal component analysis (PCA) that we term dual probabilistic PCA (DPPCA). The DPPCA model has the additional advantage that the linear mappings from the embedded space can easily be nonlinearised through Gaussian processes. We refer to this model as a Gaussian process latent variable model (GP-LVM). Through analysis of the GP-LVM objective function, we relate the model to popular spectral techniques such as kernel PCA and multidimensional scaling. We then review a practical algorithm for GP-LVMs in the context of large data sets and develop it to also handle discrete valued data and missing attributes. We demonstrate the model on a range of real-world and artiﬁcially generated data sets.},
+	language = {en},
+	author = {Lawrence, Neil}
+}
+
+@article{mnih_probabilistic_nodate,
+	title = {Probabilistic {Matrix} {Factorization}},
+	abstract = {Many existing approaches to collaborative ﬁltering can neither handle very large datasets nor easily deal with users who have very few ratings. In this paper we present the Probabilistic Matrix Factorization (PMF) model which scales linearly with the number of observations and, more importantly, performs well on the large, sparse, and very imbalanced Netﬂix dataset. We further extend the PMF model to include an adaptive prior on the model parameters and show how the model capacity can be controlled automatically. Finally, we introduce a constrained version of the PMF model that is based on the assumption that users who have rated similar sets of movies are likely to have similar preferences. The resulting model is able to generalize considerably better for users with very few ratings. When the predictions of multiple PMF models are linearly combined with the predictions of Restricted Boltzmann Machines models, we achieve an error rate of 0.8861, that is nearly 7\% better than the score of Netﬂix’s own system.},
+	language = {en},
+	author = {Mnih, Andriy and Salakhutdinov, Russ R}
+}
+
+@article{chen_variational_2017,
+	title = {Variational {Lossy} {Autoencoder}},
+	url = {http://arxiv.org/abs/1611.02731},
+	abstract = {Representation learning seeks to expose certain aspects of observed data in a learned representation that’s amenable to downstream tasks like classiﬁcation. For instance, a good representation for 2D images might be one that describes only global structure and discards information about detailed texture. In this paper, we present a simple but principled method to learn such global representations by combining Variational Autoencoder (VAE) with neural autoregressive models such as RNN, MADE and PixelRNN/CNN. Our proposed VAE model allows us to have control over what the global latent code can learn and by designing the architecture accordingly, we can force the global latent code to discard irrelevant information such as texture in 2D images, and hence the VAE only “autoencodes” data in a lossy fashion. In addition, by leveraging autoregressive models as both prior distribution p(z) and decoding distribution p(x{\textbackslash}textbarz), we can greatly improve generative modeling performance of VAEs, achieving new state-of-the-art results on MNIST, OMNIGLOT and Caltech-101 Silhouettes density estimation tasks as well as competitive results on CIFAR10.},
+	language = {en},
+	urldate = {2020-05-18},
+	journal = {arXiv:1611.02731 [cs, stat]},
+	author = {Chen, Xi and Kingma, Diederik P. and Salimans, Tim and Duan, Yan and Dhariwal, Prafulla and Schulman, John and Sutskever, Ilya and Abbeel, Pieter},
+	month = mar,
+	year = {2017},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1611.02731},
+	annote = {Comment: Added CIFAR10 experiments; ICLR 2017}
+}
+
+@article{hoffman_elbo_nodate,
+	title = {{ELBO} surgery: yet another way to carve up the variational evidence lower bound},
+	abstract = {We rewrite the variational evidence lower bound objective (ELBO) of variational autoencoders in a way that highlights the role of the encoded data distribution. This perspective suggests that to improve our variational bounds we should improve our priors and not just the encoder and decoder.},
+	language = {en},
+	author = {Hoffman, Matthew D and Johnson, Matthew J},
+	pages = {4}
+}
+
+@article{higgins_-vae_2017,
+	title = {β-{VAE}: {LEARNING} {BASIC} {VISUAL} {CONCEPTS} {WITH} {A} {CONSTRAINED} {VARIATIONAL} {FRAMEWORK}},
+	abstract = {Learning an interpretable factorised representation of the independent data generative factors of the world without supervision is an important precursor for the development of artiﬁcial intelligence that is able to learn and reason in the same way that humans do. We introduce β-VAE, a new state-of-the-art framework for automated discovery of interpretable factorised latent representations from raw image data in a completely unsupervised manner. Our approach is a modiﬁcation of the variational autoencoder (VAE) framework. We introduce an adjustable hyperparameter β that balances latent channel capacity and independence constraints with reconstruction accuracy. We demonstrate that β-VAE with appropriately tuned β {\textbackslash}textgreater 1 qualitatively outperforms VAE (β = 1), as well as state of the art unsupervised (InfoGAN) and semi-supervised (DC-IGN) approaches to disentangled factor learning on a variety of datasets (celebA, faces and chairs). Furthermore, we devise a protocol to quantitatively compare the degree of disentanglement learnt by different models, and show that our approach also signiﬁcantly outperforms all baselines quantitatively. Unlike InfoGAN, β-VAE is stable to train, makes few assumptions about the data and relies on tuning a single hyperparameter β, which can be directly optimised through a hyperparameter search using weakly labelled data or through heuristic visual inspection for purely unsupervised data.},
+	language = {en},
+	author = {Higgins, Irina and Matthey, Loic and Pal, Arka and Burgess, Christopher and Glorot, Xavier and Botvinick, Matthew and Mohamed, Shakir and Lerchner, Alexander},
+	year = {2017},
+	pages = {13}
+}
+
+@article{rainforth_tighter_2019,
+	title = {Tighter {Variational} {Bounds} are {Not} {Necessarily} {Better}},
+	url = {http://arxiv.org/abs/1802.04537},
+	abstract = {We provide theoretical and empirical evidence that using tighter evidence lower bounds (ELBOs) can be detrimental to the process of learning an inference network by reducing the signal-to-noise ratio of the gradient estimator. Our results call into question common implicit assumptions that tighter ELBOs are better variational objectives for simultaneous model learning and inference amortization schemes. Based on our insights, we introduce three new algorithms: the partially importance weighted auto-encoder (PIWAE), the multiply importance weighted auto-encoder (MIWAE), and the combination importance weighted autoencoder (CIWAE), each of which includes the standard importance weighted auto-encoder (IWAE) as a special case. We show that each can deliver improvements over IWAE, even when performance is measured by the IWAE target itself. Furthermore, our results suggest that PIWAE may be able to deliver simultaneous improvements in the training of both the inference and generative networks.},
+	language = {en},
+	urldate = {2020-05-18},
+	journal = {arXiv:1802.04537 [cs, stat]},
+	author = {Rainforth, Tom and Kosiorek, Adam R. and Le, Tuan Anh and Maddison, Chris J. and Igl, Maximilian and Wood, Frank and Teh, Yee Whye},
+	month = mar,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1802.04537},
+	annote = {Comment: To appear at ICML 2018}
+}
+
+@article{bengio_representation_2014,
+	title = {Representation {Learning}: {A} {Review} and {New} {Perspectives}},
+	shorttitle = {Representation {Learning}},
+	url = {http://arxiv.org/abs/1206.5538},
+	abstract = {The success of machine learning algorithms generally depends on data representation, and we hypothesize that this is because different representations can entangle and hide more or less the different explanatory factors of variation behind the data. Although specific domain knowledge can be used to help design representations, learning with generic priors can also be used, and the quest for AI is motivating the design of more powerful representation-learning algorithms implementing such priors. This paper reviews recent work in the area of unsupervised feature learning and deep learning, covering advances in probabilistic models, auto-encoders, manifold learning, and deep networks. This motivates longer-term unanswered questions about the appropriate objectives for learning good representations, for computing representations (i.e., inference), and the geometrical connections between representation learning, density estimation and manifold learning.},
+	language = {en},
+	urldate = {2020-05-19},
+	journal = {arXiv:1206.5538 [cs]},
+	author = {Bengio, Yoshua and Courville, Aaron and Vincent, Pascal},
+	month = apr,
+	year = {2014},
+	keywords = {Computer Science - Machine Learning},
+	annote = {arXiv: 1206.5538}
+}
+
+@article{karras_analyzing_2020,
+	title = {Analyzing and {Improving} the {Image} {Quality} of {StyleGAN}},
+	url = {http://arxiv.org/abs/1912.04958},
+	abstract = {The style-based GAN architecture (StyleGAN) yields state-of-the-art results in data-driven unconditional generative image modeling. We expose and analyze several of its characteristic artifacts, and propose changes in both model architecture and training methods to address them. In particular, we redesign the generator normalization, revisit progressive growing, and regularize the generator to encourage good conditioning in the mapping from latent codes to images. In addition to improving image quality, this path length regularizer yields the additional beneﬁt that the generator becomes signiﬁcantly easier to invert. This makes it possible to reliably attribute a generated image to a particular network. We furthermore visualize how well the generator utilizes its output resolution, and identify a capacity problem, motivating us to train larger models for additional quality improvements. Overall, our improved model redeﬁnes the state of the art in unconditional image modeling, both in terms of existing distribution quality metrics as well as perceived image quality.},
+	language = {en},
+	urldate = {2020-05-19},
+	journal = {arXiv:1912.04958 [cs, eess, stat]},
+	author = {Karras, Tero and Laine, Samuli and Aittala, Miika and Hellsten, Janne and Lehtinen, Jaakko and Aila, Timo},
+	month = mar,
+	year = {2020},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Neural and Evolutionary Computing, Computer Science - Computer Vision and Pattern Recognition, Electrical Engineering and Systems Science - Image and Video Processing},
+	annote = {arXiv: 1912.04958}
+}
+
+@article{song_generative_2019,
+	title = {Generative {Modeling} by {Estimating} {Gradients} of the {Data} {Distribution}},
+	url = {http://arxiv.org/abs/1907.05600},
+	abstract = {We introduce a new generative model where samples are produced via Langevin dynamics using gradients of the data distribution estimated with score matching. Because gradients can be ill-deﬁned and hard to estimate when the data resides on low-dimensional manifolds, we perturb the data with different levels of Gaussian noise, and jointly estimate the corresponding scores, i.e., the vector ﬁelds of gradients of the perturbed data distribution for all noise levels. For sampling, we propose an annealed Langevin dynamics where we use gradients corresponding to gradually decreasing noise levels as the sampling process gets closer to the data manifold. Our framework allows ﬂexible model architectures, requires no sampling during training or the use of adversarial methods, and provides a learning objective that can be used for principled model comparisons. Our models produce samples comparable to GANs on MNIST, CelebA and CIFAR-10 datasets, achieving a new state-of-the-art inception score of 8.87 on CIFAR-10. Additionally, we demonstrate that our models learn effective representations via image inpainting experiments.},
+	language = {en},
+	urldate = {2020-05-19},
+	journal = {arXiv:1907.05600 [cs, stat]},
+	author = {Song, Yang and Ermon, Stefano},
+	month = oct,
+	year = {2019},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1907.05600},
+	annote = {Comment: NeurIPS 2019}
+}
+
+@article{zhao_infovae_2018,
+	title = {{InfoVAE}: {Information} {Maximizing} {Variational} {Autoencoders}},
+	shorttitle = {{InfoVAE}},
+	url = {http://arxiv.org/abs/1706.02262},
+	abstract = {A key advance in learning generative models is the use of amortized inference distributions that are jointly trained with the models. We ﬁnd that existing training objectives for variational autoencoders can lead to inaccurate amortized inference distributions and, in some cases, improving the objective provably degrades the inference quality. In addition, it has been observed that variational autoencoders tend to ignore the latent variables when combined with a decoding distribution that is too ﬂexible. We again identify the cause in existing training criteria and propose a new class of objectives (InfoVAE) that mitigate these problems. We show that our model can signiﬁcantly improve the quality of the variational posterior and can make effective use of the latent features regardless of the ﬂexibility of the decoding distribution. Through extensive qualitative and quantitative analyses, we demonstrate that our models outperform competing approaches on multiple performance metrics.},
+	language = {en},
+	urldate = {2020-05-19},
+	journal = {arXiv:1706.02262 [cs, stat]},
+	author = {Zhao, Shengjia and Song, Jiaming and Ermon, Stefano},
+	month = may,
+	year = {2018},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Artificial Intelligence},
+	annote = {arXiv: 1706.02262}
+}
+
+@article{chen_infogan_2016,
+	title = {{InfoGAN}: {Interpretable} {Representation} {Learning} by {Information} {Maximizing} {Generative} {Adversarial} {Nets}},
+	shorttitle = {{InfoGAN}},
+	url = {http://arxiv.org/abs/1606.03657},
+	abstract = {This paper describes InfoGAN, an information-theoretic extension to the Generative Adversarial Network that is able to learn disentangled representations in a completely unsupervised manner. InfoGAN is a generative adversarial network that also maximizes the mutual information between a small subset of the latent variables and the observation. We derive a lower bound of the mutual information objective that can be optimized efﬁciently. Speciﬁcally, InfoGAN successfully disentangles writing styles from digit shapes on the MNIST dataset, pose from lighting of 3D rendered images, and background digits from the central digit on the SVHN dataset. It also discovers visual concepts that include hair styles, presence/absence of eyeglasses, and emotions on the CelebA face dataset. Experiments show that InfoGAN learns interpretable representations that are competitive with representations learned by existing supervised methods.},
+	language = {en},
+	urldate = {2020-05-19},
+	journal = {arXiv:1606.03657 [cs, stat]},
+	author = {Chen, Xi and Duan, Yan and Houthooft, Rein and Schulman, John and Sutskever, Ilya and Abbeel, Pieter},
+	month = jun,
+	year = {2016},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1606.03657}
+}
+
+@book{behrmann_invertibility_nodate,
+	title = {On the {Invertibility} of {Invertible} {Neural} {Networks}},
+	url = {https://openreview.net/pdf?id=BJlVeyHFwH},
+	author = {Behrmann, Jens and Vicol, Paul and Wang, Kuan-Chieh and Grosse, Roger and Jacobsen, Jörn-Henrik}
+}
+
+@article{krizhevsky_learning_nodate,
+	title = {Learning {Multiple} {Layers} of {Features} from {Tiny} {Images}},
+	language = {en},
+	author = {Krizhevsky, Alex}
+}
+
+@article{johnson_composing_2017,
+	title = {Composing graphical models with neural networks for structured representations and fast inference},
+	url = {http://arxiv.org/abs/1603.06277},
+	abstract = {We propose a general modeling and inference framework that combines the complementary strengths of probabilistic graphical models and deep learning methods. Our model family composes latent graphical models with neural network observation likelihoods. For inference, we use recognition networks to produce local evidence potentials, then combine them with the model distribution using efﬁcient message-passing algorithms. All components are trained simultaneously with a single stochastic variational inference objective. We illustrate this framework by automatically segmenting and categorizing mouse behavior from raw depth video, and demonstrate several other example models.},
+	language = {en},
+	urldate = {2020-05-22},
+	journal = {arXiv:1603.06277 [stat]},
+	author = {Johnson, Matthew J. and Duvenaud, David and Wiltschko, Alexander B. and Datta, Sandeep R. and Adams, Ryan P.},
+	month = jul,
+	year = {2017},
+	keywords = {Statistics - Machine Learning},
+	annote = {arXiv: 1603.06277},
+	annote = {Comment: v5 fixes tex compilation bugs and also a math bug in the statement and proof of Prop. 4.1 (and D.3). v4 adds two paragraphs to the related work section and fixes typos in the appendices. v3 fixes some typos in the appendices. v2 is a rewrite from v1 to be more readable and to include detailed appendices}
+}
+
+@article{karras_progressive_2018,
+	title = {Progressive {Growing} of {GANs} for {Improved} {Quality}, {Stability}, and {Variation}},
+	url = {http://arxiv.org/abs/1710.10196},
+	abstract = {We describe a new training methodology for generative adversarial networks. The key idea is to grow both the generator and discriminator progressively: starting from a low resolution, we add new layers that model increasingly ﬁne details as training progresses. This both speeds the training up and greatly stabilizes it, allowing us to produce images of unprecedented quality, e.g., CELEBA images at 10242. We also propose a simple way to increase the variation in generated images, and achieve a record inception score of 8.80 in unsupervised CIFAR10. Additionally, we describe several implementation details that are important for discouraging unhealthy competition between the generator and discriminator. Finally, we suggest a new metric for evaluating GAN results, both in terms of image quality and variation. As an additional contribution, we construct a higher-quality version of the CELEBA dataset.},
+	language = {en},
+	urldate = {2020-05-22},
+	journal = {arXiv:1710.10196 [cs, stat]},
+	author = {Karras, Tero and Aila, Timo and Laine, Samuli and Lehtinen, Jaakko},
+	month = feb,
+	year = {2018},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Neural and Evolutionary Computing},
+	annote = {arXiv: 1710.10196},
+	annote = {Comment: Final ICLR 2018 version}
+}
+
+@article{karras_progressive_2018-1,
+	title = {Progressive {Growing} of {GANs} for {Improved} {Quality}, {Stability}, and {Variation}},
+	url = {http://arxiv.org/abs/1710.10196},
+	abstract = {We describe a new training methodology for generative adversarial networks. The key idea is to grow both the generator and discriminator progressively: starting from a low resolution, we add new layers that model increasingly ﬁne details as training progresses. This both speeds the training up and greatly stabilizes it, allowing us to produce images of unprecedented quality, e.g., CELEBA images at 10242. We also propose a simple way to increase the variation in generated images, and achieve a record inception score of 8.80 in unsupervised CIFAR10. Additionally, we describe several implementation details that are important for discouraging unhealthy competition between the generator and discriminator. Finally, we suggest a new metric for evaluating GAN results, both in terms of image quality and variation. As an additional contribution, we construct a higher-quality version of the CELEBA dataset.},
+	language = {en},
+	urldate = {2020-05-22},
+	journal = {arXiv:1710.10196 [cs, stat]},
+	author = {Karras, Tero and Aila, Timo and Laine, Samuli and Lehtinen, Jaakko},
+	month = feb,
+	year = {2018},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning, Computer Science - Neural and Evolutionary Computing},
+	annote = {arXiv: 1710.10196},
+	annote = {Comment: Final ICLR 2018 version}
+}
+
+@article{heusel_gans_2018,
+	title = {{GANs} {Trained} by a {Two} {Time}-{Scale} {Update} {Rule} {Converge} to a {Local} {Nash} {Equilibrium}},
+	url = {http://arxiv.org/abs/1706.08500},
+	abstract = {Generative Adversarial Networks (GANs) excel at creating realistic images with complex models for which maximum likelihood is infeasible. However, the convergence of GAN training has still not been proved. We propose a two time-scale update rule (TTUR) for training GANs with stochastic gradient descent on arbitrary GAN loss functions. TTUR has an individual learning rate for both the discriminator and the generator. Using the theory of stochastic approximation, we prove that the TTUR converges under mild assumptions to a stationary local Nash equilibrium. The convergence carries over to the popular Adam optimization, for which we prove that it follows the dynamics of a heavy ball with friction and thus prefers ﬂat minima in the objective landscape. For the evaluation of the performance of GANs at image generation, we introduce the ‘Fréchet Inception Distance” (FID) which captures the similarity of generated images to real ones better than the Inception Score. In experiments, TTUR improves learning for DCGANs and Improved Wasserstein GANs (WGAN-GP) outperforming conventional GAN training on CelebA, CIFAR-10, SVHN, LSUN Bedrooms, and the One Billion Word Benchmark.},
+	language = {en},
+	urldate = {2020-05-24},
+	journal = {arXiv:1706.08500 [cs, stat]},
+	author = {Heusel, Martin and Ramsauer, Hubert and Unterthiner, Thomas and Nessler, Bernhard and Hochreiter, Sepp},
+	month = jan,
+	year = {2018},
+	keywords = {Computer Science - Machine Learning, Statistics - Machine Learning},
+	annote = {arXiv: 1706.08500},
+	annote = {Comment: Implementations are available at: https://github.com/bioinf-jku/TTUR}
+}
+
+@article{theis_note_2016,
+	title = {A {NOTE} {ON} {THE} {EVALUATION} {OF} {GENERATIVE} {MODELS}},
+	abstract = {Probabilistic generative models can be used for compression, denoising, inpainting, texture synthesis, semi-supervised learning, unsupervised feature learning, and other tasks. Given this wide range of applications, it is not surprising that a lot of heterogeneity exists in the way these models are formulated, trained, and evaluated. As a consequence, direct comparison between models is often difﬁcult. This article reviews mostly known but often underappreciated properties relating to the evaluation and interpretation of generative models with a focus on image models. In particular, we show that three of the currently most commonly used criteria—average log-likelihood, Parzen window estimates, and visual ﬁdelity of samples—are largely independent of each other when the data is high-dimensional. Good performance with respect to one criterion therefore need not imply good performance with respect to the other criteria. Our results show that extrapolation from one criterion to another is not warranted and generative models need to be evaluated directly with respect to the application(s) they were intended for. In addition, we provide examples demonstrating that Parzen window estimates should generally be avoided.},
+	language = {en},
+	author = {Theis, Lucas},
+	year = {2016},
+	pages = {10}
+}
+
+@article{parzen_estimation_1962,
+	title = {On {Estimation} of a {Probability} {Density} {Function} and {Mode}},
+	volume = {33},
+	issn = {0003-4851},
+	url = {http://projecteuclid.org/euclid.aoms/1177704472},
+	doi = {10.1214/aoms/1177704472},
+	language = {en},
+	number = {3},
+	urldate = {2020-05-27},
+	journal = {The Annals of Mathematical Statistics},
+	author = {Parzen, Emanuel},
+	month = sep,
+	year = {1962},
+	pages = {1065--1076}
+}
+
+@incollection{davis_remarks_2011,
+	address = {New York, NY},
+	title = {Remarks on {Some} {Nonparametric} {Estimates} of a {Density} {Function}},
+	isbn = {978-1-4419-8339-8},
+	url = {https://doi.org/10.1007/978-1-4419-8339-8_13},
+	abstract = {This note discusses some aspects of the estimation of the density function of a univariate probability distribution. All estimates of the density function satisfying relatively mild conditions are shown to be biased. The asymptotic mean square error of a particular class of estimates is evaluated.},
+	booktitle = {Selected {Works} of {Murray} {Rosenblatt}},
+	publisher = {Springer New York},
+	author = {Davis, Richard A. and Lii, Keh-Shin and Politis, Dimitris N.},
+	editor = {Davis, Richard A. and Lii, Keh-Shin and Politis, Dimitris N.},
+	year = {2011},
+	doi = {10.1007/978-1-4419-8339-8_13},
+	pages = {95--100}
+}
+
+@article{rosenblatt_remarks_nodate,
+	title = {{REMARKS} {ON} {SOME} {NONPARAMETRIC} {ESTIMATES} {OF} {A} {DENSITY} {FUNCTION}},
+	language = {en},
+	author = {Rosenblatt, Murray}
+}
+
+@inproceedings{vincent_extracting_2008,
+	address = {Helsinki, Finland},
+	title = {Extracting and composing robust features with denoising autoencoders},
+	isbn = {978-1-60558-205-4},
+	url = {http://portal.acm.org/citation.cfm?doid=1390156.1390294},
+	doi = {10.1145/1390156.1390294},
+	abstract = {Previous work has shown that the diﬃculties in learning deep generative or discriminative models can be overcome by an initial unsupervised learning step that maps inputs to useful intermediate representations. We introduce and motivate a new training principle for unsupervised learning of a representation based on the idea of making the learned representations robust to partial corruption of the input pattern. This approach can be used to train autoencoders, and these denoising autoencoders can be stacked to initialize deep architectures. The algorithm can be motivated from a manifold learning and information theoretic perspective or from a generative model perspective. Comparative experiments clearly show the surprising advantage of corrupting the input of autoencoders on a pattern classiﬁcation benchmark suite.},
+	language = {en},
+	urldate = {2020-05-27},
+	booktitle = {Proceedings of the 25th international conference on {Machine} learning - {ICML} '08},
+	publisher = {ACM Press},
+	author = {Vincent, Pascal and Larochelle, Hugo and Bengio, Yoshua and Manzagol, Pierre-Antoine},
+	year = {2008},
+	pages = {1096--1103}
+}
+
+@article{vincent_connection_2011,
+	title = {A {Connection} {Between} {Score} {Matching} and {Denoising} {Autoencoders}},
+	volume = {23},
+	issn = {0899-7667, 1530-888X},
+	url = {http://www.mitpressjournals.org/doi/10.1162/NECO_a_00142},
+	doi = {10.1162/NECO_a_00142},
+	abstract = {Denoising autoencoders have been previously shown to be competitive alternatives to Restricted Boltzmann Machines for unsupervised pre-training of each layer of a deep architecture. We show that a simple denoising autoencoder training criterion is equivalent to matching the score (with respect to the data) of a speciﬁc energy based model to that of a non-parametric Parzen density estimator of the data. This yields several useful insights. It deﬁnes a proper probabilistic model for the denoising autoencoder technique which makes it in principle possible to sample from them or to rank examples by their energy. It suggests a different way to apply score matching that is related to learning to denoise and does not require computing second derivatives. It justiﬁes the use of tied weights between the encoder and decoder, and suggests ways to extend the success of denoising autoencoders to a larger family of energy-based models.},
+	language = {english},
+	number = {7},
+	urldate = {2020-05-27},
+	journal = {Neural Computation},
+	author = {Vincent, Pascal},
+	month = jul,
+	year = {2011},
+	pages = {1661--1674}
+}
+
+@article{borji_pros_2018,
+	title = {Pros and {Cons} of {GAN} {Evaluation} {Measures}},
+	url = {http://arxiv.org/abs/1802.03446},
+	abstract = {Generative models, in particular generative adversarial networks (GANs), have gained signiﬁcant attention in recent years. A number of GAN variants have been proposed and have been utilized in many applications. Despite large strides in terms of theoretical progress, evaluating and comparing GANs remains a daunting task. While several measures have been introduced, as of yet, there is no consensus as to which measure best captures strengths and limitations of models and should be used for fair model comparison. As in other areas of computer vision and machine learning, it is critical to settle on one or few good measures to steer the progress in this ﬁeld. In this paper, I review and critically discuss more than 24 quantitative and 5 qualitative measures for evaluating generative models with a particular emphasis on GAN-derived models. I also provide a set of 7 desiderata followed by an evaluation of whether a given measure or a family of measures is compatible with them.},
+	language = {en},
+	urldate = {2020-06-01},
+	journal = {arXiv:1802.03446 [cs]},
+	author = {Borji, Ali},
+	month = oct,
+	year = {2018},
+	keywords = {Computer Science - Computer Vision and Pattern Recognition},
+	annote = {arXiv: 1802.03446}
+}
+
+@book{noauthor_introduction_1975,
+	series = {Pure and {Applied} {Mathematics}},
+	title = {An {Introduction} to {Differentiable} {Manifolds} and {Riemannian} {Geometry}},
+	volume = {63},
+	isbn = {978-0-12-116050-0},
+	url = {https://linkinghub.elsevier.com/retrieve/pii/S0079816908X60659},
+	language = {en},
+	urldate = {2020-06-01},
+	publisher = {Elsevier},
+	year = {1975},
+	doi = {10.1016/S0079-8169(08)X6065-9}
+}
+
+@article{hoffman_stochastic_nodate,
+	title = {Stochastic {Variational} {Inference}},
+	abstract = {We develop stochastic variational inference, a scalable algorithm for approximating posterior distributions. We develop this technique for a large class of probabilistic models and we demonstrate it with two probabilistic topic models, latent Dirichlet allocation and the hierarchical Dirichlet process topic model. Using stochastic variational inference, we analyze several large collections of documents: 300K articles from Nature, 1.8M articles from The New York Times, and 3.8M articles from Wikipedia. Stochastic inference can easily handle data sets of this size and outperforms traditional variational inference, which can only handle a smaller subset. (We also show that the Bayesian nonparametric topic model outperforms its parametric counterpart.) Stochastic variational inference lets us apply complex Bayesian models to massive data sets.},
+	language = {en},
+	author = {Hoffman, Matthew D}
+}
+
+@book{casella_statistical_2002,
+	series = {Duxbury advanced series in statistics and decision sciences},
+	title = {Statistical {Inference}},
+	isbn = {978-0-534-24312-8},
+	url = {https://books.google.com/books?id=0x_vAAAAMAAJ},
+	publisher = {Thomson Learning},
+	author = {Casella, G. and Berger, R.L.},
+	year = {2002},
+	lccn = {2001025794}
+}
