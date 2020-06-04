@@ -89,11 +89,15 @@ if(__name__ == '__main__'):
     parser.add_argument('--save_embedding',
                         action='store_true',
                         help='')
+    parser.add_argument('--print_embedding',
+                        action='store_true',
+                        help='')
 
     args = parser.parse_args()
 
     # Load all of the experiments
     all_experiments = []
+    results_folders = []
     for name in args.names:
         exp = Experiment(name,
                          args.quantize,
@@ -101,6 +105,7 @@ if(__name__ == '__main__'):
                          start_it=args.checkpoint,
                          experiment_root=args.experiment_root)
         exp.load_experiment()
+        results_folders.append(os.path.join(args.results_root, '%s_%d'%(exp.experiment_name, exp.current_iteration)))
 
         sampler = exp.get_jitted_sampler()
         encoder = exp.get_jitted_forward()
@@ -127,8 +132,19 @@ if(__name__ == '__main__'):
             print('test_done')
             evaluate_experiments.save_embeddings(key, data_loader, encoder, embedding_path, test=False, n_samples_per_batch=4)
 
+    if(args.print_embedding):
+        save_paths = [os.path.join(results_folders[0], 'embedding'), os.path.join(results_folders[1], 'embedding')]
+        key = random.PRNGKey(0)
+        data_key = random.PRNGKey(0)
+        exp1, _, encoder1, decoder1 = all_experiments[0]
+        exp2, _, encoder2, decoder2 = all_experiments[1]
 
-        
+        data_loader = exp1.data_loader
+        path_1 = os.path.join(save_paths[0], str(exp1.experiment_name))
+        path_2 = os.path.join(save_paths[1], str(exp2.experiment_name))
+
+        evaluate_experiments.print_reduced_embeddings(key, data_loader, encoder1, encoder2, path_1, path_2, results_folder, test=True, n_samples_per_batch=4)
+
 
     # Compare samples between a model and a baseline
     if(args.compare_baseline_samples):

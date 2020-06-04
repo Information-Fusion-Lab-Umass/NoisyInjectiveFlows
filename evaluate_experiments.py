@@ -12,7 +12,7 @@ import yaml
 import jax.numpy as np
 import numpy as onp
 import jax.ops
-
+import umap
 ######################################################################################################################################################
 
 def generate_images_for_fid(key,
@@ -640,7 +640,7 @@ def get_embeddings_test(key, data_loader, model, n_samples_per_batch=4):
     labels = []
     for j in range(10000//n_samples_per_batch):
         key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'tpv', True, True)
+        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'tpv', True, False)
         keys = np.array(random.split(key, 64))
         log_px, z  = model(_x, keys[0])
         embeddings.append(z)
@@ -660,7 +660,7 @@ def get_embeddings_training(key, data_loader, model, n_samples_per_batch=4):
     labels = []
     for j in range(50000//n_samples_per_batch):
         key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'train', True, True)
+        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'train', True, False)
         keys = np.array(random.split(key, 64))
         log_px, z  = model(_x, keys[0])
         embeddings.append(z)
@@ -684,15 +684,15 @@ def save_embeddings(key, data_loader, model, save_path, test = True, n_samples_p
         onp.save(os.path.join(save_path, 'training__embeddings'), training_embeddings)
         onp.save(os.path.join(save_path, 'training_y'), training_y)
 
-def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path, test=True, n_samples_per_batch=4):
+def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path1, path2, pathsave, test=True, n_samples_per_batch=4):
     if(test):
-        test_nif_embeddings = onp.array(onp.load(os.path.join(path, 'test_nif_embeddings.npy')))
-        test_nf_embeddings = onp.array(onp.load(os.path.join(path, 'test_nf_embeddings.npy')))
-        y = onp.array(onp.load(os.path.join(path, 'test_y.npy')))
+        test_nif_embeddings = onp.array(onp.load(os.path.join(path2, 'test_embeddings.npy')))
+        test_nf_embeddings = onp.array(onp.load(os.path.join(path1, 'test_embeddings.npy')))
+        y = onp.array(onp.load(os.path.join(path1, 'test_y.npy')))
     else:
-        test_nif_embeddings = onp.array(onp.load(os.path.join(path, 'training_nif_embeddings.npy')))
-        test_nf_embeddings = onp.array(onp.load(os.path.join(path, 'training_nf_embeddings.npy')))
-        y = onp.array(onp.load(os.path.join(path, 'training_y.npy')))
+        test_nif_embeddings = onp.array(onp.load(os.path.join(path2, 'training_embeddings.npy')))
+        test_nf_embeddings = onp.array(onp.load(os.path.join(path1, 'training_embeddings.npy')))
+        y = onp.array(onp.load(os.path.join(path1, 'training_y.npy')))
     print(test_nif_embeddings == test_nf_embeddings)
     print(y.shape)
     nf_2d_embeddings = umap.UMAP(random_state=0).fit_transform(test_nf_embeddings, y=y)
@@ -728,5 +728,5 @@ def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path, test=T
     cbar.set_ticks(np.arange(10))
     cbar.ax.set_yticklabels(['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck'])
     cbar.ax.tick_params(labelsize=12)
-    plt.savefig('subplot.pdf', format='pdf')
+    plt.savefig(os.path.join(pathsave, 'embeddings.pdf'), format='pdf')
     plt.close()
