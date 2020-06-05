@@ -929,3 +929,71 @@ def save_fashion_mnist_to_samples():
     for i, im in enumerate(images):
         path = os.path.join(save_folder, '%s.jpg'%i)
         matplotlib.image.imsave(path, im[:,:,0])
+
+############################################################################################################################################################
+
+def save_train_splits_for_fid(key=random.PRNGKey(0), dataset='CelebA', quantize_level_bits=8, split_percentage=0.1, n_splits=1, save_folder='FID/celeba_splits'):
+    if(dataset == 'CelebA'):
+        dataset_getter = celeb_dataset_loader
+    elif(dataset == 'CIFAR10'):
+        dataset_getter = cifar10_data_loader
+    elif(dataset == 'FashionMNIST'):
+        dataset_getter = partial(mnist_data_loader, kind='fashion')
+    else:
+        assert 0, 'Invalid dataset'
+
+    data_loader, x_shape, (n_train, n_test, n_validation) = dataset_getter(key, quantize_level_bits)
+    split_size = int(n_train*split_percentage)
+
+    # Create the folder to save to
+    pathlib.Path(save_folder).mkdir(parents=True, exist_ok=True)
+
+    # Going to make 5 random batches from the training data
+    keys = random.split(key, n_splits)
+    for split_index, key in tqdm(list(enumerate(keys))):
+
+        # Make a folder for the split
+        split_folder = os.path.join(save_folder, 'split_%d'%split_index)
+        pathlib.Path(split_folder).mkdir(parents=True, exist_ok=True)
+
+        x = data_loader((split_size,), key=key)
+
+        # Convert to jpg files
+        for i, im in tqdm(list(enumerate(x))):
+            path = os.path.join(split_folder, '%s.jpg'%i)
+            im = im[:,:,0] if im.shape[-1] == 1 else im
+            matplotlib.image.imsave(path, im/(2.0**quantize_level_bits))
+
+############################################################################################################################################################
+
+def save_test_for_fid(key=random.PRNGKey(0), dataset='FashionMNIST', quantize_level_bits=8, save_folder_name='test_images'):
+    if(dataset == 'CelebA'):
+        dataset_getter = celeb_dataset_loader
+    elif(dataset == 'CIFAR10'):
+        dataset_getter = cifar10_data_loader
+    elif(dataset == 'FashionMNIST'):
+        dataset_getter = partial(mnist_data_loader, kind='fashion')
+    else:
+        assert 0, 'Invalid dataset'
+
+    data_loader, x_shape, (n_train, n_test, n_validation) = dataset_getter(key, quantize_level_bits)
+
+    # Create the folder to save to
+    save_folder = 'FID/%s_%s'%(dataset, save_folder_name)
+    pathlib.Path(save_folder).mkdir(parents=True, exist_ok=True)
+
+    x_test = data_loader((n_test,), start=0, split='test')
+
+    # Convert to jpg files
+    for i, im in tqdm(list(enumerate(x_test))):
+        path = os.path.join(save_folder, '%s.jpg'%i)
+        im = im[:,:,0] if im.shape[-1] == 1 else im
+        matplotlib.image.imsave(path, im/(2.0**quantize_level_bits))
+
+    del x_test
+    x_validation = data_loader((n_validation,), start=0, split='validation')
+
+    for i, im in tqdm(list(enumerate(x_validation))):
+        path = os.path.join(save_folder, '%s.jpg'%(i + n_test))
+        im = im[:,:,0] if im.shape[-1] == 1 else im
+        matplotlib.image.imsave(path, im/(2.0**quantize_level_bits))

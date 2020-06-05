@@ -335,6 +335,7 @@ class Experiment():
 
     def get_jitted_sampler(self, for_plotting=True):
         """ Create a sampler that we can use quickly """
+        # jitted_inverse = (partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST))
         jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST))
 
         def sampler(n_samples, key, temperature, sigma, **kwargs):
@@ -361,7 +362,8 @@ class Experiment():
 
     def get_jitted_forward(self):
         """ Create an encoder that we can use quickly """
-        jitted_forward = jit(partial(self.model.forward, self.model.params, self.model.state, test=util.TEST))
+        jitted_forward = partial(self.model.forward, self.model.params, self.model.state, test=util.TEST)
+        # jitted_forward = jit(partial(self.model.forward, self.model.params, self.model.state, test=util.TEST))
 
         def encoder(x, key, **kwargs):
             if(x.ndim == len(self.model.x_shape)):
@@ -376,7 +378,8 @@ class Experiment():
 
     def get_jitted_inverse(self, for_plotting=True):
         """ Create an decoder that we can use quickly """
-        jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST, s=0.0))
+        jitted_inverse = partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST, s=0.0)
+        # jitted_inverse = jit(partial(self.model.inverse, self.model.params, self.model.state, test=util.TEST, s=0.0))
 
         def decoder(z, key, **kwargs):
             if(z.ndim == len(self.model.z_shape)):

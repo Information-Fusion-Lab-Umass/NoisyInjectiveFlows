@@ -14,6 +14,28 @@ TRAIN = jnp.ones((0,))
 
 ################################################################################################################
 
+
+def scaled_logsumexp(x, log_b, axis=0):
+    """ logsumexp with scaling
+    """
+    x_max = jnp.amax(log_b + x, axis=axis, keepdims=True)
+    y = jnp.sum(jnp.exp(log_b + x - x_max), axis=axis)
+    sign_y = jnp.sign(y)
+    abs_y = jnp.log(jnp.abs(y))
+    return abs_y + jnp.squeeze(x_max, axis=axis)
+
+
+# def scaled_logsumexp(x, b, axis=0):
+#     """ logsumexp with scaling
+#     """
+#     x_max = jnp.amax(x, axis=axis, keepdims=True)
+#     y = jnp.sum(b*jnp.exp(x - x_max), axis=axis)
+#     sign_y = jnp.sign(y)
+#     abs_y = jnp.log(jnp.abs(y))
+#     return abs_y + jnp.squeeze(x_max, axis=axis)
+
+################################################################################################################
+
 @partial(jit, static_argnums=(0,))
 def replicate(shape, pytree):
     replicate_fun = lambda x: jnp.broadcast_to(x, shape + x.shape)

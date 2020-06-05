@@ -39,6 +39,10 @@ if(__name__ == '__main__'):
                         help='The root directory of the results folder',
                         default='Results')
 
+    parser.add_argument('--figure2',
+                        action='store_true',
+                        help='')
+
     parser.add_argument('--compare_baseline_samples',
                         action='store_true',
                         help='')
@@ -90,6 +94,10 @@ if(__name__ == '__main__'):
                         action='store_true',
                         help='')
     parser.add_argument('--print_embedding',
+                        action='store_true',
+                        help='')
+
+    parser.add_argument('--prob_diff',
                         action='store_true',
                         help='')
 
@@ -145,6 +153,19 @@ if(__name__ == '__main__'):
 
         evaluate_experiments.print_reduced_embeddings(key, data_loader, encoder1, encoder2, path_1, path_2, results_folder, test=True, n_samples_per_batch=4)
 
+    # Create figure 2
+    if(args.figure2):
+        n_samples = 8
+        key = random.PRNGKey(0)
+        keys = random.split(key, 5)
+        nf_exp = all_experiments[0]
+        assert nf_exp[0].is_nf == True, 'Need to pass the normalizing flow first'
+
+        for nif_exp in all_experiments[1:]:
+            for j, key in enumerate(keys):
+                z_dim = nif_exp[0].model.z_shape[0]
+                save_path = os.path.join(results_folder, 'dim_%d_figure_2_%d.pdf'%(z_dim, j))
+                evaluate_experiments.figure_2_plots(key, nf_exp, nif_exp, n_samples, save_path)
 
     # Compare samples between a model and a baseline
     if(args.compare_baseline_samples):
@@ -199,13 +220,29 @@ if(__name__ == '__main__'):
     if(args.vary_s):
         n_samples = 8
         key = random.PRNGKey(0)
-        data_key = random.PRNGKey(0)
-        save_path = os.path.join(results_folder, 'vary_s.pdf')
-        evaluate_experiments.samples_vary_s(data_key, key, all_experiments, n_samples, save_path, reuse_key=True)
+        keys = random.split(key, 10)
+        fixed_key = random.PRNGKey(0)
+
+        for exp in all_experiments:
+            if(exp[0].is_nf):
+                continue
+            for j, key in enumerate(keys):
+                z_dim = exp[0].model.z_shape[0]
+                save_path = os.path.join(results_folder, 'dim_%d_vary_s_%d.pdf'%(z_dim, j))
+                evaluate_experiments.vary_s(key, fixed_key, exp, n_samples, save_path, reuse_key=True)
+
+
+    # # Compare different sigma samples
+    # if(args.vary_s):
+    #     n_samples = 8
+    #     key = random.PRNGKey(0)
+    #     data_key = random.PRNGKey(0)
+    #     save_path = os.path.join(results_folder, 'vary_s.pdf')
+    #     evaluate_experiments.samples_vary_s(data_key, key, all_experiments, n_samples, save_path, reuse_key=True)
 
     # Compare different temperature samples
     if(args.compare_t):
-        n_samples = 8
+        n_samples = 20
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'compare_t.pdf')
@@ -240,3 +277,9 @@ if(__name__ == '__main__'):
     if(args.manifold_penalty):
         key = random.PRNGKey(0)
         evaluate_experiments.manifold_penalty(key, all_experiments[0][0], None)
+
+    if(args.prob_diff):
+        key = random.PRNGKey(0)
+        exp1, exp2 = all_experiments[0], all_experiments[1]
+        save_path = os.path.join(results_folder, 'test.yaml')
+        evaluate_experiments.save_probability_difference(key, exp1, exp2, save_path)

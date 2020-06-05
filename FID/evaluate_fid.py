@@ -4,6 +4,7 @@ import tensorflow as tf
 import tqdm
 from tqdm import tqdm
 import argparse
+import glob
 import yaml
 # from TTUR.fid import calculate_fid_given_paths
 from TTUR.fid import check_or_download_inception, _handle_path, calculate_frechet_distance, create_inception_graph
@@ -44,14 +45,21 @@ if(__name__ == '__main__'):
             # Loop through all of the configurations
             all_settings = meta['settings']
             for i, setting in enumerate(tqdm(all_settings)):
+                print('name', name, '%d/%d'%((i+1), len(all_settings)))
 
                 # If we've done this, continue
-                if(setting['score'] is not None):
-                    results[name].append(dict(s=setting['s'], t=setting['t'], score=setting['score']))
-                    continue
+                # if(setting['score'] is not None):
+                #     results[name].append(dict(s=setting['s'], t=setting['t'], score=setting['score']))
+                #     continue
 
                 # Compute the FID score
                 samples_path = setting['path'][4:]
+
+                # Check for precomputed stats
+                experiment_stats = glob.glob(samples_path+'/*.npz')
+                if(len(experiment_stats) == 1):
+                    samples_path = experiment_stats[0]
+
                 m1, s1 = _handle_path(samples_path, sess, low_profile=True)
                 m2, s2 = _handle_path(stats_path, sess, low_profile=True)
                 fid_score = calculate_frechet_distance(m1, s1, m2, s2)

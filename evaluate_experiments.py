@@ -13,6 +13,8 @@ import jax.numpy as np
 import numpy as onp
 import jax.ops
 import umap
+import util
+
 ######################################################################################################################################################
 
 def generate_images_for_fid(key,
@@ -21,7 +23,7 @@ def generate_images_for_fid(key,
                             sigma,
                             n_samples,
                             save_folder,
-                            n_samples_per_batch=8):
+                            n_samples_per_batch=128):
     filled_sampler = partial(sampler, temperature=temperature, sigma=sigma)
 
     # Generate the keys we will use
@@ -39,7 +41,7 @@ def generate_images_for_fid(key,
 
     # Loop over all of the samples
     index = 0
-    for i, (key, batch_size) in enumerate(zip(keys, batch_sizes)):
+    for i, (key, batch_size) in tqdm(list(enumerate(zip(keys, batch_sizes)))):
         _, x = filled_sampler(batch_size, key)
 
         # Save the images
@@ -149,7 +151,45 @@ def compare_vertical(key, experiments, n_samples, save_path, n_samples_per_batch
 
 ######################################################################################################################################################
 
-def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=8, sigma=0.3):
+def figure_2_plots(key, nf_exp, nif_exp, n_samples, save_path, n_samples_per_batch=8, sigma=0.0):
+
+    samples = []
+    plot_names = []
+    for exp, sampler, encoder, decoder in [nf_exp, nif_exp]:
+        filled_sampler = partial(sampler, temperature=1.0, sigma=sigma)
+        x, _ = batched_samples(key, filled_sampler, n_samples, n_samples_per_batch)
+        samples.append(x)
+        plot_names.append(exp.experiment_name)
+
+    # Create the axes
+    n_rows = 2
+    n_cols = n_samples
+
+    fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
+    fig.set_size_inches(2*n_cols, 2*n_rows)
+
+    # Plot the samples
+    plot_names = ['NF', 'NIF']
+    for i, (x, plot_name) in enumerate(zip(samples, plot_names)):
+        for j, im in enumerate(x):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
+            ax = axes[i,j]
+            ax.imshow(im)
+            ax.set_yticklabels([])
+            ax.set_xticklabels([])
+            ax.tick_params(axis='both', which='both',length=0)
+            if(j == 0):
+                ax.set_ylabel(plot_name, fontsize=20)
+
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+    plt.savefig(save_path, bbox_inches='tight', format='pdf')
+    plt.close()
+
+######################################################################################################################################################
+
+def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=8, sigma=0.0):
     """ Compare samples from the different models """
 
     samples = []
@@ -275,7 +315,7 @@ def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=8):
     """ Compare samples at different values of t """
 
     # Define the samples we'll be using
-    temperatures = jnp.linspace(0.0, 3.0, n_samples)
+    temperatures = jnp.linspace(0.0, 20.0, n_samples)
 
     # We will vmap over temperature. Also will be sharing the same random key everywhere
     def temp_sampler(sampler, key, temp):
@@ -371,13 +411,51 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
 
 ######################################################################################################################################################
 
+def vary_s(data_key, key, experiment, n_samples, save_path, n_samples_per_batch=8, reuse_key=True):
+    """ Compare the same sample for different values of t """
+    exp, sampler, encoder, decoder = experiment
+
+    # Define the samples we'll be using
+    sigmas = jnp.linspace(0.0, 1.0, n_samples)
+
+    # We will vmap over temperature. Also will be sharing the same random key everywhere
+    def sigma_decode(decoder, z, s):
+        _, fz = decoder(z, key, sigma=s)
+        return fz
+
+    # Encode the image
+    z = random.normal(data_key, exp.model.z_shape)*1.5
+
+    # Decode at different sigmas
+    sigma_samples = vmap(partial(sigma_decode, decoder, z))(sigmas)
+
+    # Create the axes
+    n_rows = 1
+    n_cols = n_samples
+
+    fig, axes = plt.subplots(n_rows, n_cols)
+    fig.set_size_inches(2*n_cols, 2*n_rows)
+
+    # Plot the samples
+    for j, (im, s) in enumerate(zip(sigma_samples, sigmas)):
+        im = im[:,:,0] if im.shape[-1] == 1 else im
+        axes[j].imshow(im)
+        axes[j].set_axis_off()
+        axes[j].set_title('s=%5.3f'%s)
+
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+    plt.savefig(save_path, bbox_inches='tight', format='pdf')
+    plt.close()
+
+################################################################################################################################################
+
 def samples_vary_s(data_key, key, experiments, n_samples, save_path, n_samples_per_batch=8, reuse_key=True):
     """ Compare the same sample for different values of t """
 
     # Use a sample from the NF model for these plots
     x = None
     for exp, sampler, encoder, decoder in experiments:
-        if(exp.is_nf):
+        if(exp.is_nf == False):
             _, x = sampler(1, data_key, 1.0, 1.0)
             break
     assert x is not None
@@ -575,6 +653,110 @@ def validation_nll_from_best_s(key, experiments, best_s_path, save_path, n_sampl
     # Save the best values of s
     with open(save_path, 'w') as f:
         yaml.dump(validation_bits_per_dims, f)
+
+################################################################################################################################################
+
+# def save_probability_difference(key, experiment1, experiment2, save_path, n_samples_per_batch=8):
+#     """ Compute the KL divergences and total variation between exp1 and exp2 """
+
+#     # Compute the validation nll for each experiment
+#     kl_qp = 0.0
+#     kl_pq = 0.0
+#     differences = []
+
+#     exp1, sampler1, encoder1, _ = experiment1
+#     exp2, sampler2, encoder2, _ = experiment2
+
+#     filled_encoder1 = jit(partial(encoder1, sigma=1.0))
+#     filled_encoder2 = jit(partial(encoder2, sigma=1.0))
+
+#     # KL[p||q]
+#     p_over_q = []
+#     for key in random.split(key, 100):
+#         k1, k2, k3 = random.split(key, 3)
+
+#         # Sample from p(x)
+#         _, x = sampler1(n_samples_per_batch, k1, 1.0, 1.0)
+
+#         # Compute log p(x) and log q(x)
+#         log_px, _ = filled_encoder1(x, k2)
+#         log_qx, _ = filled_encoder2(x, k3)
+
+#         p_over_q.append(log_px - log_qx)
+
+#     p_over_q = jnp.concatenate(p_over_q, axis=0)
+#     kl_pq = jax.scipy.special.logsumexp(p_over_q)
+
+#     # KL[q||p]
+#     q_over_p = []
+#     for key in random.split(key, 100):
+#         k1, k2, k3 = random.split(key, 3)
+
+#         # Sample from q(x)
+#         _, x = sampler2(n_samples_per_batch, key, 1.0, 1.0)
+
+#         # Compute log q(x) and log p(x)
+#         log_qx, _ = filled_encoder2(x, k2)
+#         log_px, _ = filled_encoder1(x, k1)
+
+#         q_over_p.append(log_qx - log_px)
+
+#     q_over_p = jnp.concatenate(q_over_p, axis=0)
+#     kl_qp = jax.scipy.special.logsumexp(q_over_p)
+
+#     metrics = {'kl_qp': kl_qp,
+#                'kl_pq': kl_pq}
+
+#     print(metrics)
+
+#     # Save the best values of s
+#     with open(save_path, 'w') as f:
+#         yaml.dump(metrics, f)
+
+
+def save_probability_difference(key, experiment1, experiment2, save_path, n_samples_per_batch=8):
+    """ Compute the KL divergences and total variation between exp1 and exp2 """
+
+    # Compute the validation nll for each experiment
+    kl_qp = 0.0
+    kl_pq = 0.0
+    differences = []
+
+    exp1, _, encoder1, _ = experiment1
+    exp2, _, encoder2, _ = experiment2
+
+    filled_encoder1 = jit(partial(encoder1, sigma=1.0))
+    filled_encoder2 = jit(partial(encoder2, sigma=1.0))
+
+    # This should be small enough to fit in memory
+    n_validation = exp1.split_shapes[2]
+    validation_data = exp1.data_loader((n_validation,), start=0, split='validation')
+
+    # Compute the log likelihoods
+    _, log_likelihoods1 = batched_evaluate(key, filled_encoder1, validation_data, n_samples_per_batch)
+    _, log_likelihoods2 = batched_evaluate(key, filled_encoder2, validation_data, n_samples_per_batch)
+
+    differences = log_likelihoods1 - log_likelihoods2
+    kl_qp = util.scaled_logsumexp(differences, log_likelihoods1)
+    kl_pq = util.scaled_logsumexp(-differences, log_likelihoods2)
+    abs_difference = jnp.abs(differences)
+
+    mean_abs_diff = jnp.mean(abs_difference)
+    std_abs_diff = jnp.std(abs_difference)
+
+    total_variation = jnp.max(abs_difference)
+
+    metrics = {'kl_qp': kl_qp,
+               'kl_pq': kl_pq,
+               'mean_abs_diff': mean_abs_diff,
+               'std_abs_diff': std_abs_diff,
+               'total_variation': total_variation}
+
+    print(metrics)
+
+    # Save the best values of s
+    with open(save_path, 'w') as f:
+        yaml.dump(metrics, f)
 
 ################################################################################################################################################
 
