@@ -138,7 +138,6 @@ def mnist_data_loader(key, quantize_level_bits=8, split=(0.6, 0.2, 0.2), data_fo
     test_images, test_labels = images[n_train:n_train + n_test], labels[n_train:n_train + n_test]
     validation_images, validation_labels = images[n_train + n_test:], labels[n_train + n_test:]
 
-    # def data_loader(batch_shape, key=None, start=None, train=True, labels=False):
     def data_loader(batch_shape, key=None, start=None, split='train', return_labels=False, onehot=True, return_if_at_end=False):
         assert (key is None)^(start is None)
         at_end = False
@@ -932,7 +931,8 @@ def save_fashion_mnist_to_samples():
 
 ############################################################################################################################################################
 
-def save_train_splits_for_fid(key=random.PRNGKey(0), dataset='CelebA', quantize_level_bits=8, split_percentage=0.1, n_splits=1, save_folder='FID/celeba_splits'):
+def save_train_splits_for_fid(key=random.PRNGKey(0), dataset='FashionMNIST', quantize_level_bits=8, split_percentage=0.1, n_splits=1, save_folder='FID/fmnist_splits'):
+# def save_train_splits_for_fid(key=random.PRNGKey(0), dataset='CelebA', quantize_level_bits=8, split_percentage=0.1, n_splits=1, save_folder='FID/celeba_splits'):
     if(dataset == 'CelebA'):
         dataset_getter = celeb_dataset_loader
     elif(dataset == 'CIFAR10'):

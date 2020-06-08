@@ -10,7 +10,7 @@ import pandas as pd
 from jax.experimental import optimizers
 import yaml
 import jax.numpy as np
-import numpy as onp
+import numpy as np
 import jax.ops
 import umap
 import util
@@ -195,7 +195,11 @@ def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=
     samples = []
     plot_names = []
     for exp, sampler, encoder, decoder in experiments:
-        filled_sampler = partial(sampler, temperature=1.0, sigma=sigma)
+        if(exp.is_nf):
+            temp = 1.0
+        else:
+            temp = 2.0
+        filled_sampler = partial(sampler, temperature=temp, sigma=sigma)
         x, _ = batched_samples(key, filled_sampler, n_samples, n_samples_per_batch)
         samples.append(x)
         plot_names.append(exp.experiment_name)
@@ -309,13 +313,50 @@ def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_s
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
     plt.close()
 
+################################################################################################################################################
+
+# def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_samples, quantize_level_bits, n_samples_per_batch=8):
+#     """ Generate reconstructions of data """
+
+#     # Pull samples
+#     x = data_loader((n_samples,), key=data_key)
+
+#     # Generate the reconstructions
+#     k1, k2 = random.split(key, 2)
+#     z,  _ = batched_evaluate(k1, encoder, x, n_samples_per_batch)
+#     fz, _ = batched_evaluate(k2, decoder, z, n_samples_per_batch)
+
+#     # Plot the reconstructions
+#     n_rows = 2
+#     n_cols = n_samples
+
+#     fig, axes = plt.subplots(n_rows, n_cols)
+#     if(axes.ndim == 1):
+#         axes = axes[None]
+#     fig.set_size_inches(2*n_cols, 2*n_rows)
+
+#     # Plot the samples
+#     for i, im in enumerate(fz):
+#         im = im[:,:,0] if im.shape[-1] == 1 else im
+#         axes[0,i].imshow(im)
+#         axes[0,i].set_axis_off()
+
+#     for i, im in enumerate(x):
+#         im = im[:,:,0] if im.shape[-1] == 1 else im
+#         axes[1,i].imshow(im/(2.0**quantize_level_bits))
+#         axes[1,i].set_axis_off()
+
+#     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+#     plt.savefig(save_path, bbox_inches='tight', format='pdf')
+#     plt.close()
+
 ######################################################################################################################################################
 
 def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=8):
     """ Compare samples at different values of t """
 
     # Define the samples we'll be using
-    temperatures = jnp.linspace(0.0, 20.0, n_samples)
+    temperatures = jnp.linspace(0.0, 5.0, n_samples)
 
     # We will vmap over temperature. Also will be sharing the same random key everywhere
     def temp_sampler(sampler, key, temp):
@@ -339,10 +380,21 @@ def compare_t(key, experiments, n_samples, save_path, n_samples_per_batch=8):
 
     # Plot the samples
     for i, x in enumerate(samples):
-        for j, im in enumerate(x):
+        for j, (t, im) in enumerate(zip(temperatures, x)):
             im = im[:,:,0] if im.shape[-1] == 1 else im
             axes[i,j].imshow(im)
-            axes[i,j].set_axis_off()
+            if(i == 0):
+                axes[i,j].set_title('t=%5.3f'%t, fontsize=18)
+            if(j == 0):
+                if(i == 0):
+                    axes[i,j].set_ylabel('NF', fontsize=18)
+                else:
+                    axes[i,j].set_ylabel('NIF', fontsize=18)
+                axes[i,j].set_yticklabels([])
+                axes[i,j].set_xticklabels([])
+                axes[i,j].tick_params(axis='both', which='both',length=0)
+            else:
+                axes[i,j].set_axis_off()
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
@@ -441,7 +493,7 @@ def vary_s(data_key, key, experiment, n_samples, save_path, n_samples_per_batch=
         im = im[:,:,0] if im.shape[-1] == 1 else im
         axes[j].imshow(im)
         axes[j].set_axis_off()
-        axes[j].set_title('s=%5.3f'%s)
+        axes[j].set_title('s=%5.3f'%s, fontsize=18)
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
@@ -813,102 +865,75 @@ def manifold_penalty(key, experiment, save_path):
 
 ################################################################################################################################################
 
-def get_embeddings_test(key, data_loader, model, n_samples_per_batch=4):
-    """
-    Save reconstructions
-    """
-    inital_key = key
-    embeddings = []
-    labels = []
-    for j in range(10000//n_samples_per_batch):
-        key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'tpv', True, False)
-        keys = np.array(random.split(key, 64))
-        log_px, z  = model(_x, keys[0])
-        embeddings.append(z)
-        labels.extend(_y)
-        if(j % 100 == 1):
-            print(j)
-    final_labels = np.array(labels)
-    final_embeddings = np.concatenate(embeddings, axis = 0)
-    return final_embeddings, final_labels
-
-def get_embeddings_training(key, data_loader, model, n_samples_per_batch=4):
-    """
-    Save reconstructions
-    """
-    inital_key = key
-    embeddings = []
-    labels = []
-    for j in range(50000//n_samples_per_batch):
-        key, *keys = random.split(key, 3)
-        _x, _y = data_loader((n_samples_per_batch,), None, j*n_samples_per_batch, 'train', True, False)
-        keys = np.array(random.split(key, 64))
-        log_px, z  = model(_x, keys[0])
-        embeddings.append(z)
-        labels.extend(_y)
-        if(j % 100 == 1):
-            print(j)
-    final_labels = np.array(labels)
-    final_embeddings = np.concatenate(embeddings, axis = 0)
-    return final_embeddings, final_labels
+# def embeddings_to_df():
+#     path = 'Results/cifar_128_225000.npz'
+#     with np.load(path) as data:
+#         z, y, u = data['z'], data['y'], data['u']
 
 
-def save_embeddings(key, data_loader, model, save_path, test = True, n_samples_per_batch=4):
-    if(test):
-        test_embeddings, y = get_embeddings_test(key, data_loader, model, n_samples_per_batch=4)
-        test_embeddings,  y = onp.array(test_embeddings), onp.array(y)
-        onp.save(os.path.join(save_path, 'test_embeddings'), test_embeddings)
-        onp.save(os.path.join(save_path, 'test_y'), y)
-    else:
-        training_embeddings, y = get_embeddings_training(key, data_loader, model, n_samples_per_batch=4)
-        training_embeddings, training_y = onp.array(training_embeddings), onp.array(y)
-        onp.save(os.path.join(save_path, 'training__embeddings'), training_embeddings)
-        onp.save(os.path.join(save_path, 'training_y'), training_y)
+################################################################################################################################################
 
-def print_reduced_embeddings(key, data_loader, nf_model, nif_model, path1, path2, pathsave, test=True, n_samples_per_batch=4):
-    if(test):
-        test_nif_embeddings = onp.array(onp.load(os.path.join(path2, 'test_embeddings.npy')))
-        test_nf_embeddings = onp.array(onp.load(os.path.join(path1, 'test_embeddings.npy')))
-        y = onp.array(onp.load(os.path.join(path1, 'test_y.npy')))
-    else:
-        test_nif_embeddings = onp.array(onp.load(os.path.join(path2, 'training_embeddings.npy')))
-        test_nf_embeddings = onp.array(onp.load(os.path.join(path1, 'training_embeddings.npy')))
-        y = onp.array(onp.load(os.path.join(path1, 'training_y.npy')))
-    print(test_nif_embeddings == test_nf_embeddings)
-    print(y.shape)
-    nf_2d_embeddings = umap.UMAP(random_state=0).fit_transform(test_nf_embeddings, y=y)
-    nif_2d_embeddings = umap.UMAP(random_state=0).fit_transform(test_nif_embeddings, y=y)
-    colors = y
+def save_test_embeddings(key, experiment, save_path, n_samples_per_batch=64):
 
-    def outlier_mask(data, m=2):
-        return np.all(np.abs(data - np.mean(data)) < m * np.std(data), axis=1)
+    # Load the full datset
+    exp, sampler, encoder, decoder = experiment
+    n_train, n_test, n_validation = exp.split_shapes
+    data_loader = exp.data_loader
 
-    #colorsnf = colors[outlier_mask(nf_2d_embeddings)]
-    #colorsnif = colors[outlier_mask(nif_2d_embeddings)]
-    #nf_2d_embeddings = nf_2d_embeddings[outlier_mask(nf_2d_embeddings)]
-    #nif_2d_embeddings = nif_2d_embeddings[outlier_mask(nif_2d_embeddings)]
+    # Compute our embeddings
+    x, y = data_loader((n_test + n_validation,), start=0, split='tpv', return_labels=True, onehot=False)
+    z, _ = batched_evaluate(key, encoder, x, n_samples_per_batch)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
-    axes[0].scatter(nif_2d_embeddings[:,0], nif_2d_embeddings[:,1], s=3.0, c=y, cmap='Spectral', alpha=0.6)
-    scatter = axes[1].scatter(nf_2d_embeddings[:,0], nf_2d_embeddings[:,1], s=3.0, c=y, cmap='Spectral', alpha=0.6)
+    # Compute the UMAP embeddings
+    u = umap.UMAP(random_state=0).fit_transform(z, y=y)
 
-    #axes[0].set_title('Our Method', fontdict={'fontsize': 18})
-    #axes[1].set_title('GLOW', fontdict={'fontsize': 18})
+    z, y = np.array(z), np.array(y)
+    np.savez(save_path, z=z, y=y, u=u)
 
-    #axes[0].xaxis.set_visible(False)
-    #axes[0].yaxis.set_visible(False)
-    #axes[1].xaxis.set_visible(False)
-    #axes[1].yaxis.set_visible(False)
-    #axes[0].set_xlim(1, 11)
-    #axes[0].set_ylim(-4, 5)
+def plot_embeddings(embedding_paths, titles, save_path):
 
-    #axes[1].set_xlim(-5, 1.5)
-    #axes[1].set_ylim(-5, 2)
+    def outlier_mask(data, m=5.0):
+        return jnp.all((data - jnp.median(data, keepdims=True))**2 < m*jnp.std(data, keepdims=True), axis=1)
 
-    cbar = fig.colorbar(scatter, boundaries=np.arange(11) - 0.5)
-    cbar.set_ticks(np.arange(10))
+    # Load the embeddings
+    ys, us = [], []
+    for path in embedding_paths:
+        with np.load(path) as data:
+            z, y, u = data['z'], data['y'], data['u']
+            mask = outlier_mask(u)
+            # ys.append(y[mask])
+            # us.append(u[mask])
+            ys.append(y)
+            us.append(u)
+
+            # df1 = pd.DataFrame()
+
+    fig, axes = plt.subplots(1, 2); axes = axes.ravel()
+    fig.set_size_inches(10, 5)
+
+    us = [us[0], us[3]]
+    ys = [ys[0], ys[3]]
+
+    for i, (ax, u, y, title) in enumerate(zip(axes, us, ys, titles)):
+        scatter = ax.scatter(*u.T, s=3.0, c=y, cmap='Spectral', alpha=0.6)
+        ax.set_title(title, fontsize=20)
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
+        ax.tick_params(axis='both', which='both',length=0)
+        if(i == 0):
+            ax.set_xlim(-5.5, 4.8)
+            ax.set_ylim(5, 15)
+        else:
+            ax.set_xlim(-4, 7)
+            ax.set_ylim(-6, 8)
+
+
+
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+    cbar = fig.colorbar(scatter, boundaries=jnp.arange(11) - 0.5)
+    cbar.set_ticks(jnp.arange(10))
     cbar.ax.set_yticklabels(['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck'])
     cbar.ax.tick_params(labelsize=12)
-    plt.savefig(os.path.join(pathsave, 'embeddings.pdf'), format='pdf')
+    plt.savefig(save_path, bbox_inches='tight', format='pdf')
     plt.close()
+

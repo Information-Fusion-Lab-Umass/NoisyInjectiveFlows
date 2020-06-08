@@ -93,7 +93,7 @@ if(__name__ == '__main__'):
     parser.add_argument('--save_embedding',
                         action='store_true',
                         help='')
-    parser.add_argument('--print_embedding',
+    parser.add_argument('--plot_embeddings',
                         action='store_true',
                         help='')
 
@@ -106,7 +106,7 @@ if(__name__ == '__main__'):
     # Load all of the experiments
     all_experiments = []
     results_folders = []
-    for name in args.names:
+    for i, name in enumerate(args.names):
         exp = Experiment(name,
                          args.quantize,
                          None,
@@ -131,33 +131,26 @@ if(__name__ == '__main__'):
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
 
-        for exp, _, encoder, decoder in all_experiments:
-            data_loader = exp.data_loader
-            print('starting_save_embeddings')
-            embedding_path = os.path.join(save_path, str(exp.experiment_name))
-            pathlib.Path(embedding_path).mkdir(parents=True, exist_ok=True)
-            evaluate_experiments.save_embeddings(key, data_loader, encoder, embedding_path, test=True, n_samples_per_batch=4)
-            print('test_done')
-            evaluate_experiments.save_embeddings(key, data_loader, encoder, embedding_path, test=False, n_samples_per_batch=4)
+        for experiment in all_experiments:
+            name = experiment[0].experiment_name
+            save_path = os.path.join(results_folder, '%s_test_embeddings.npz'%name)
+            evaluate_experiments.save_test_embeddings(key, experiment, save_path, n_samples_per_batch=64)
 
-    if(args.print_embedding):
-        save_paths = [os.path.join(results_folders[0], 'embedding'), os.path.join(results_folders[1], 'embedding')]
-        key = random.PRNGKey(0)
-        data_key = random.PRNGKey(0)
-        exp1, _, encoder1, decoder1 = all_experiments[0]
-        exp2, _, encoder2, decoder2 = all_experiments[1]
-
-        data_loader = exp1.data_loader
-        path_1 = os.path.join(save_paths[0], str(exp1.experiment_name))
-        path_2 = os.path.join(save_paths[1], str(exp2.experiment_name))
-
-        evaluate_experiments.print_reduced_embeddings(key, data_loader, encoder1, encoder2, path_1, path_2, results_folder, test=True, n_samples_per_batch=4)
+    if(args.plot_embeddings):
+        embedding_paths = []
+        for experiment in all_experiments:
+            name = experiment[0].experiment_name
+            path = os.path.join(results_folder, '%s_test_embeddings.npz'%name)
+            embedding_paths.append(path)
+        save_path = os.path.join(results_folder, 'embedding_plot.pdf')
+        titles = ['NF', 'NIF-64']
+        evaluate_experiments.plot_embeddings(embedding_paths, titles, save_path)
 
     # Create figure 2
     if(args.figure2):
         n_samples = 8
         key = random.PRNGKey(0)
-        keys = random.split(key, 5)
+        keys = random.split(key, 10)
         nf_exp = all_experiments[0]
         assert nf_exp[0].is_nf == True, 'Need to pass the normalizing flow first'
 
@@ -183,10 +176,9 @@ if(__name__ == '__main__'):
         save_path = os.path.join(results_folder, 'compare_vertical.pdf')
         evaluate_experiments.compare_vertical(key, all_experiments, n_samples, save_path)
 
-
     # Compare samples between the all of the models
     if(args.compare_samples):
-        n_samples = 8
+        n_samples = 64
         key = random.PRNGKey(3)
         save_path = os.path.join(results_folder, 'compare_samples.pdf')
         evaluate_experiments.compare_samples(key, all_experiments, n_samples, save_path)
@@ -242,11 +234,15 @@ if(__name__ == '__main__'):
 
     # Compare different temperature samples
     if(args.compare_t):
-        n_samples = 20
+        n_samples = 8
         key = random.PRNGKey(0)
         data_key = random.PRNGKey(0)
-        save_path = os.path.join(results_folder, 'compare_t.pdf')
-        evaluate_experiments.compare_t(key, all_experiments, n_samples, save_path)
+        glow = all_experiments[0]
+        for exp in all_experiments[1:]:
+            name = exp[0].experiment_name
+            for i, key in enumerate(random.split(key, 6)):
+                save_path = os.path.join(results_folder, '%s_compare_t_%d.pdf'%(name, i))
+                evaluate_experiments.compare_t(key, [glow, exp], n_samples, save_path)
 
     # Plot some interpolations
     if(args.interpolations):
