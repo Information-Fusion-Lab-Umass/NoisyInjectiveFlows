@@ -51,4 +51,6 @@ To run plot_embeddings, on these two models, you would then run:
 python plot_experiments.py --name celeba_64n celeba_glown --experiment_root 'Experiments' --plot_embeddings
 ```
 
+### Running FID Scores
+
 
