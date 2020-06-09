@@ -14,13 +14,13 @@ using the dataloader found in datasets.py. CelebA must be downloaded seperately 
 
 ## Usage
 
-#Training
+# Training
 To train a model, first create a yaml file for the model architecture. All model's used in the paper have an existing yaml file.
 One a yaml file exists, run the following:
 ```
 python train_runner.py --name yamlfilename
 ```
-#Running Experiments
+# Running Experiments
 To train experiments, run the following:
 ```
 python plot_experiments.py --names model_name1 --experiment_root 'Experiments'
