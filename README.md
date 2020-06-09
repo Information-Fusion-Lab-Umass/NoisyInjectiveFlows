@@ -37,10 +37,8 @@ additional commandline arguments for running each experiment is as follows:
 --interpolations
 --best_s_for_nll
 --nll_comparison
---manifold_penalty
 --save_embedding
 --plot_embeddings
---prob_diff
 To run the plot_embeddings experiment, you must first run save_embedding seperately for the two model you wish to compare, for example:
 ```
 python plot_experiments.py --name celeba_64n --experiment_root 'Experiments' --save_embedding
