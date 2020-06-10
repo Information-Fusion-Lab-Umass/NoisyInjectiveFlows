@@ -387,7 +387,7 @@ class Experiment():
             else:
                 batch_size = z.shape[0]
 
-            log_px, x, _ = jitted_inverse(jnp.zeros(batch_size), z, (), key=None, **kwargs)
+            log_px, x, _ = jitted_inverse(jnp.zeros(batch_size), z, (), key=key, **kwargs)
 
             # Undo the dequantization and logit scaling to make sure we end up between 0 and 1
             if(for_plotting):

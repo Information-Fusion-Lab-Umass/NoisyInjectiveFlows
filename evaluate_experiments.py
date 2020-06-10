@@ -189,6 +189,33 @@ def figure_2_plots(key, nf_exp, nif_exp, n_samples, save_path, n_samples_per_bat
 
 ######################################################################################################################################################
 
+def plot_samples(key, experiment, save_path, n_rows=8, n_cols=8, n_samples_per_batch=8, sigma=0.0):
+    exp, sampler, encoder, decoder = experiment
+
+
+    n_samples = n_rows*n_cols
+    filled_sampler = partial(sampler, temperature=1.0, sigma=sigma)
+    x, _ = batched_samples(key, filled_sampler, n_samples, n_samples_per_batch)
+
+    fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
+    fig.set_size_inches(2*n_cols, 2*n_rows)
+
+    for i in range(n_rows):
+        for j in range(n_cols):
+            index = i*n_cols + j
+            im = x[index]
+            im = im[:,:,0] if im.shape[-1] == 1 else im
+            axes[i,j].imshow(im)
+            axes[i,j].set_axis_off()
+
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+    plt.savefig(save_path, bbox_inches='tight', format='pdf')
+    plt.close()
+
+######################################################################################################################################################
+
 def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=8, sigma=0.0):
     """ Compare samples from the different models """
 
@@ -214,8 +241,8 @@ def compare_samples(key, experiments, n_samples, save_path, n_samples_per_batch=
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
-    if(len(experiments) == 2):
-        plot_names = ['NF', 'NIF']
+    if(len(experiments) == 5):
+        plot_names = ['NF', 'NIF-64', 'NIF-128', 'NIF-256', 'NIF-512']
     for i, (x, plot_name) in enumerate(zip(samples, plot_names)):
         for j, im in enumerate(x):
             im = im[:,:,0] if im.shape[-1] == 1 else im
@@ -269,14 +296,63 @@ def compare_manifold_vs_full_samples(key, sampler, baseline_sampler, n_samples, 
             ax.set_yticklabels([])
             ax.set_xticklabels([])
             ax.tick_params(axis='both', which='both',length=0)
-            if(j == 0):
-                ax.set_ylabel(plot_name, fontsize=20)
+            # if(j == 0):
+            #     ax.set_ylabel(plot_name, fontsize=20)
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
     plt.close()
 
 ################################################################################################################################################
+
+def compare_reconstructions(data_key, key, experiments, save_path, n_samples, quantize_level_bits, n_samples_per_batch=8):
+    """ Generate reconstructions of data """
+    x = experiments[0][0].data_loader((n_samples,), key=data_key)
+
+    recons = []
+    for exp, sampler, encoder, decoder in experiments:
+        k1, k2 = random.split(key, 2)
+        z,  _ = batched_evaluate(k1, encoder, x, n_samples_per_batch)
+        fz, _ = batched_evaluate(k2, partial(decoder, sigma=0.0), z, n_samples_per_batch)
+        recons.append(fz)
+
+    # Plot the reconstructions
+    n_rows = len(experiments) + 1
+    n_cols = n_samples
+
+    fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
+    fig.set_size_inches(2*n_cols, 2*n_rows)
+
+    # Plot the samples
+    plot_names = ['64', '128', '256', '512']
+    for j, (title, fz) in enumerate(zip(plot_names, recons)):
+        for i, im in enumerate(fz):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
+            axes[j,i].imshow(im)
+            axes[j,i].set_yticklabels([])
+            axes[j,i].set_xticklabels([])
+            axes[j,i].tick_params(axis='both', which='both',length=0)
+            if(i == 0):
+                axes[j,i].set_ylabel(title, fontsize=20)
+
+    # Plot the data
+    for i, im in enumerate(x):
+        im = im[:,:,0] if im.shape[-1] == 1 else im
+        axes[-1,i].imshow(im/(2.0**quantize_level_bits))
+        axes[-1,i].set_yticklabels([])
+        axes[-1,i].set_xticklabels([])
+        axes[-1,i].tick_params(axis='both', which='both',length=0)
+        if(i == 0):
+            axes[-1,i].set_ylabel('Original', fontsize=20)
+
+
+    plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
+    plt.savefig(save_path, bbox_inches='tight', format='pdf')
+    plt.close()
+
+######################################################################################################################################################
 
 def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_samples, quantize_level_bits, n_samples_per_batch=8):
     """ Generate reconstructions of data """
@@ -312,43 +388,6 @@ def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_s
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
     plt.close()
-
-################################################################################################################################################
-
-# def reconstructions(data_key, key, data_loader, encoder, decoder, save_path, n_samples, quantize_level_bits, n_samples_per_batch=8):
-#     """ Generate reconstructions of data """
-
-#     # Pull samples
-#     x = data_loader((n_samples,), key=data_key)
-
-#     # Generate the reconstructions
-#     k1, k2 = random.split(key, 2)
-#     z,  _ = batched_evaluate(k1, encoder, x, n_samples_per_batch)
-#     fz, _ = batched_evaluate(k2, decoder, z, n_samples_per_batch)
-
-#     # Plot the reconstructions
-#     n_rows = 2
-#     n_cols = n_samples
-
-#     fig, axes = plt.subplots(n_rows, n_cols)
-#     if(axes.ndim == 1):
-#         axes = axes[None]
-#     fig.set_size_inches(2*n_cols, 2*n_rows)
-
-#     # Plot the samples
-#     for i, im in enumerate(fz):
-#         im = im[:,:,0] if im.shape[-1] == 1 else im
-#         axes[0,i].imshow(im)
-#         axes[0,i].set_axis_off()
-
-#     for i, im in enumerate(x):
-#         im = im[:,:,0] if im.shape[-1] == 1 else im
-#         axes[1,i].imshow(im/(2.0**quantize_level_bits))
-#         axes[1,i].set_axis_off()
-
-#     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
-#     plt.savefig(save_path, bbox_inches='tight', format='pdf')
-#     plt.close()
 
 ######################################################################################################################################################
 
@@ -463,12 +502,12 @@ def samples_vary_t(data_key, key, experiments, n_samples, save_path, n_samples_p
 
 ######################################################################################################################################################
 
-def vary_s(data_key, key, experiment, n_samples, save_path, n_samples_per_batch=8, reuse_key=True):
+def vary_s(data_key, key, experiment, n_samples_per_row, save_path, n_rows=1, n_samples_per_batch=8, reuse_key=True):
     """ Compare the same sample for different values of t """
     exp, sampler, encoder, decoder = experiment
 
     # Define the samples we'll be using
-    sigmas = jnp.linspace(0.0, 1.0, n_samples)
+    sigmas = jnp.linspace(0.0, 1.0, n_samples_per_row)
 
     # We will vmap over temperature. Also will be sharing the same random key everywhere
     def sigma_decode(decoder, z, s):
@@ -476,24 +515,31 @@ def vary_s(data_key, key, experiment, n_samples, save_path, n_samples_per_batch=
         return fz
 
     # Encode the image
-    z = random.normal(data_key, exp.model.z_shape)*1.5
+    z = random.normal(data_key, (n_rows,) + exp.model.z_shape)#*1.5
 
     # Decode at different sigmas
-    sigma_samples = vmap(partial(sigma_decode, decoder, z))(sigmas)
+    sigma_samples = []
+    for i in range(n_rows):
+        samples = vmap(partial(sigma_decode, decoder, z[i]))(sigmas)
+        sigma_samples.append(samples)
 
     # Create the axes
-    n_rows = 1
-    n_cols = n_samples
+    n_rows = n_rows
+    n_cols = n_samples_per_row
 
     fig, axes = plt.subplots(n_rows, n_cols)
+    if(axes.ndim == 1):
+        axes = axes[None]
     fig.set_size_inches(2*n_cols, 2*n_rows)
 
     # Plot the samples
-    for j, (im, s) in enumerate(zip(sigma_samples, sigmas)):
-        im = im[:,:,0] if im.shape[-1] == 1 else im
-        axes[j].imshow(im)
-        axes[j].set_axis_off()
-        axes[j].set_title('s=%5.3f'%s, fontsize=18)
+    for i in range(n_rows):
+        for j, (im, s) in enumerate(zip(sigma_samples[i], sigmas)):
+            im = im[:,:,0] if im.shape[-1] == 1 else im
+            axes[i,j].imshow(im)
+            axes[i,j].set_axis_off()
+            if(i == 0):
+                axes[i,j].set_title('s=%5.3f'%s, fontsize=18)
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)
     plt.savefig(save_path, bbox_inches='tight', format='pdf')
@@ -865,14 +911,6 @@ def manifold_penalty(key, experiment, save_path):
 
 ################################################################################################################################################
 
-# def embeddings_to_df():
-#     path = 'Results/cifar_128_225000.npz'
-#     with np.load(path) as data:
-#         z, y, u = data['z'], data['y'], data['u']
-
-
-################################################################################################################################################
-
 def save_test_embeddings(key, experiment, save_path, n_samples_per_batch=64):
 
     # Load the full datset
@@ -926,7 +964,6 @@ def plot_embeddings(embedding_paths, titles, save_path):
         else:
             ax.set_xlim(-4, 7)
             ax.set_ylim(-6, 8)
-
 
 
     plt.subplots_adjust(wspace=0, hspace=0, left=0, right=1, bottom=0, top=1)

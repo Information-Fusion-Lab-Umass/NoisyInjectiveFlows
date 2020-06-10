@@ -39,6 +39,10 @@ if(__name__ == '__main__'):
                         help='The root directory of the results folder',
                         default='Results')
 
+    parser.add_argument('--basic_samples',
+                        action='store_true',
+                        help='')
+
     parser.add_argument('--figure2',
                         action='store_true',
                         help='')
@@ -60,6 +64,10 @@ if(__name__ == '__main__'):
                         help='')
 
     parser.add_argument('--reconstructions',
+                        action='store_true',
+                        help='')
+
+    parser.add_argument('--compare_reconstructions',
                         action='store_true',
                         help='')
 
@@ -90,9 +98,11 @@ if(__name__ == '__main__'):
     parser.add_argument('--manifold_penalty',
                         action='store_true',
                         help='')
+
     parser.add_argument('--save_embedding',
                         action='store_true',
                         help='')
+
     parser.add_argument('--plot_embeddings',
                         action='store_true',
                         help='')
@@ -125,6 +135,22 @@ if(__name__ == '__main__'):
     results_folder = os.path.join(args.results_root, folder_name)
     pathlib.Path(results_folder).mkdir(parents=True, exist_ok=True)
 
+    # Basic plots for appendix
+    if(args.basic_samples):
+        nf = all_experiments[0]
+        nif = all_experiments[1]
+        nf_path = os.path.join(results_folder, 'basic_samples_nf.pdf')
+        nif_s0_path = os.path.join(results_folder, 'basic_samples_nif_s0.pdf')
+        nif_s1_path = os.path.join(results_folder, 'basic_samples_nif_s1.pdf')
+
+        key = random.PRNGKey(0)
+        n_rows = 8
+        n_cols = 8
+
+        evaluate_experiments.plot_samples(key, nf, nf_path, n_rows, n_cols, n_samples_per_batch=8, sigma=1.0)
+        evaluate_experiments.plot_samples(key, nif, nif_s0_path, n_rows, n_cols, n_samples_per_batch=8, sigma=0.0)
+        evaluate_experiments.plot_samples(key, nif, nif_s1_path, n_rows, n_cols, n_samples_per_batch=8, sigma=1.0)
+
     # Save Embeddings
     if(args.save_embedding):
         save_path = os.path.join(results_folder, 'embedding')
@@ -143,6 +169,7 @@ if(__name__ == '__main__'):
             path = os.path.join(results_folder, '%s_test_embeddings.npz'%name)
             embedding_paths.append(path)
         save_path = os.path.join(results_folder, 'embedding_plot.pdf')
+        assert all_experiments[3][0].experiment_name == 'cifar_64'
         titles = ['NF', 'NIF-64']
         evaluate_experiments.plot_embeddings(embedding_paths, titles, save_path)
 
@@ -162,7 +189,7 @@ if(__name__ == '__main__'):
 
     # Compare samples between a model and a baseline
     if(args.compare_baseline_samples):
-        n_samples = 8
+        n_samples = 16
         key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'compare_baseline_samples.pdf')
         baseline_sampler = all_experiments[0][1]
@@ -178,7 +205,7 @@ if(__name__ == '__main__'):
 
     # Compare samples between the all of the models
     if(args.compare_samples):
-        n_samples = 64
+        n_samples = 12
         key = random.PRNGKey(3)
         save_path = os.path.join(results_folder, 'compare_samples.pdf')
         evaluate_experiments.compare_samples(key, all_experiments, n_samples, save_path)
@@ -189,6 +216,15 @@ if(__name__ == '__main__'):
         key = random.PRNGKey(0)
         save_path = os.path.join(results_folder, 'compare_full_samples.pdf')
         evaluate_experiments.compare_samples(key, all_experiments, n_samples, save_path, sigma=1.0)
+
+    # Plot reconstructions for each of the models
+    if(args.compare_reconstructions):
+        n_samples = 12
+        key = random.PRNGKey(0)
+        data_key = random.PRNGKey(3)
+
+        save_path = os.path.join(results_folder, 'compare_reconstructions.pdf')
+        evaluate_experiments.compare_reconstructions(data_key, key, all_experiments, save_path, n_samples, exp.quantize_level_bits)
 
     # Plot reconstructions for each of the models
     if(args.reconstructions):
@@ -212,7 +248,7 @@ if(__name__ == '__main__'):
     if(args.vary_s):
         n_samples = 8
         key = random.PRNGKey(0)
-        keys = random.split(key, 10)
+        keys = random.split(key, 2)
         fixed_key = random.PRNGKey(0)
 
         for exp in all_experiments:
@@ -222,7 +258,6 @@ if(__name__ == '__main__'):
                 z_dim = exp[0].model.z_shape[0]
                 save_path = os.path.join(results_folder, 'dim_%d_vary_s_%d.pdf'%(z_dim, j))
                 evaluate_experiments.vary_s(key, fixed_key, exp, n_samples, save_path, reuse_key=True)
-
 
     # # Compare different sigma samples
     # if(args.vary_s):
