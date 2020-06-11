@@ -50,5 +50,15 @@ python plot_experiments.py --name celeba_64n celeba_glown --experiment_root 'Exp
 ```
 
 ### Running FID Scores
+To run the FID scores, you need a valid version of tensorflow (we used tensorflow-gpu version 1.15.2).  This version is only supported in Python 3.7.  There is a Dockerfile in the FID folder that can be used to create an environment to run the FID code.
 
+To generate the FID scores, you must first run generate_images_for_fid.py on existing experiments.  This will create a folder of images that will be fed into the FID code.
+```
+python generate_images_for_fid.py --names <experiment names>
+```
+
+Next, go into the FID folder and, using the correct environment, run evaluate_fid.py
+```
+python evaluate_fid.py --names <experiment names>
+```
 
